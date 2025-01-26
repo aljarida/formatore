@@ -1,13 +1,15 @@
-package sqllogic
+package dblogic
 
-import(
+import (
 	"database/sql"
 	"fmt"
 	"log"
-	"github.com/mattn/go-sqlite3"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func main() {
+func CheckConnection() {
+
 	db, err := sql.Open("sqlite3", ":memory:")
 
 	if err != nil {
@@ -17,9 +19,12 @@ func main() {
 	defer db.Close()
 
 	var version string
-	err = db.QueryRow("SELECT SQLITE_VERISON()").Scan(&version)
+	err = db.QueryRow("SELECT SQLITE_VERSION()").Scan(&version)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println(version)
 }
+

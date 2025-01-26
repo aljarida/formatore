@@ -1,8 +1,11 @@
 package main
-import "fmt"
-import "github.com/aljarida/formatore/databaselogic"
+import (
+	"github.com/aljarida/formatore/dblogic"
+	"fmt"
+)
 
 func main() {
-	fmt.Println("Temporary print statement.")
-	databaselogic.PrintOne()
+	fmt.Println("Testing sqllogic.CheckConnection.")
+	dblogic.CheckConnection()
+	fmt.Println("Done checking connection.")
 }
