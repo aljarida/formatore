@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"formatore/structs"
 )
 
 // Return formatted schema string for query using provided ColumnBlueprints.
-func columnBlueprintsToQueryComp(cbs []ColumnBlueprint) string {
+func columnBlueprintsToQueryComp(cbs []structs.ColumnBlueprint) string {
 	var builder strings.Builder
 	for i, cb := range cbs {
 		n, t := cb.Name, cb.Type 
@@ -25,7 +26,7 @@ func columnBlueprintsToQueryComp(cbs []ColumnBlueprint) string {
 // Given a TableBlueprint, returns a formatted create statement.
 // Automatically defines the primary key and the datetime fields.
 // Assumes tb is a validated TableBlueprint.
-func makeCreateQuery(tb TableBlueprint) string {
+func makeCreateQuery(tb structs.TableBlueprint) string {
 	intro := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ", tb.Name)
 	body := columnBlueprintsToQueryComp(tb.ColumnBlueprints)
 	return joinStrings(intro,
@@ -37,7 +38,7 @@ func makeCreateQuery(tb TableBlueprint) string {
 }
 
 // Create a table from a provided TableBlueprint.
-func CreateTable(db *sql.DB, tb TableBlueprint) error {
+func CreateTable(db *sql.DB, tb structs.TableBlueprint) error {
 	tb.ColumnBlueprints = formatColumnBlueprints(tb.ColumnBlueprints)
 	if err := validateTableBlueprint(tb); err != nil {
 		return err

@@ -3,6 +3,7 @@ package dblogic
 import (
 	"testing"
 	"reflect"
+	"formatore/structs"
 )
 
 func TestFormatCBName(t *testing.T) {
@@ -24,9 +25,9 @@ func TestFormatCBType(t *testing.T) {
 }
 
 func TestFormatColumnBlueprints(t *testing.T) {
-	cbs := []ColumnBlueprint{{"col 1", "text"}, {"col 2", "integer"}}
+	cbs := []structs.ColumnBlueprint{{"col 1", "text"}, {"col 2", "integer"}}
 	result := formatColumnBlueprints(cbs)
-	expected := []ColumnBlueprint{{"col_1", "TEXT"}, {"col_2", "INTEGER"}}
+	expected := []structs.ColumnBlueprint{{"col_1", "TEXT"}, {"col_2", "INTEGER"}}
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatal("Result was not formatted correctly.")
 	}

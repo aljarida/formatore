@@ -2,10 +2,11 @@ package dblogic
 
 import (
 	"testing"
+	"formatore/structs"
 )
 
 func TestColumnBlueprintsToQueryComp(t *testing.T) {
-	cbs := []ColumnBlueprint{{"col_1", "TEXT"}, {"col_2", "TEXT"}, {"col_3", "TEXT"}}
+	cbs := []structs.ColumnBlueprint{{"col_1", "TEXT"}, {"col_2", "TEXT"}, {"col_3", "TEXT"}}
 	expected := "col_1 TEXT, col_2 TEXT, col_3 TEXT"
 	result := columnBlueprintsToQueryComp(cbs)
 	if result != expected {
@@ -20,7 +21,7 @@ func TestColumnBlueprintsToQueryComp(t *testing.T) {
 }
 
 func TestMakeCreateQuery(t *testing.T) {
-	tb := TableBlueprint{"test_table", []ColumnBlueprint{{"col_1", "TEXT"}}}
+	tb := structs.TableBlueprint{"test_table", []structs.ColumnBlueprint{{"col_1", "TEXT"}}}
 	expected := joinStrings(
 		"CREATE TABLE IF NOT EXISTS test_table (",
 		PKeyComp,
@@ -38,7 +39,7 @@ func TestCreateTable(t *testing.T) {
 		t.Fatal("Could not connect to database.")
 	}
 	
-	tb := TableBlueprint{"test_table", []ColumnBlueprint{{"col 1", "text"}}}
+	tb := structs.TableBlueprint{"test_table", []structs.ColumnBlueprint{{"col 1", "text"}}}
 	err = CreateTable(db, tb)
 	if err != nil {
 		t.Fatalf("Failed to create table. Error: %v", err)

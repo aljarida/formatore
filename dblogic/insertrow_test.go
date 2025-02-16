@@ -4,10 +4,11 @@ import (
 	"testing"
 	"reflect"
 	"database/sql"
+	"formatore/structs"
 )
 
 const testTableName = "MY_TABLE"
-var metadata = []ColumnBlueprint{
+var metadata = []structs.ColumnBlueprint{
 	{PKeyFieldName, Integer},
 	{UnixDataTimeFieldName, Integer},
 	{"name", Text},
@@ -16,8 +17,8 @@ var metadata = []ColumnBlueprint{
 }
 
 func setupTable(t *testing.T, db *sql.DB) {
-	cbs := []ColumnBlueprint{{"name", Text}, {"weight", Real}, {"height", Integer}}
-	tb := TableBlueprint{testTableName, cbs}
+	cbs := []structs.ColumnBlueprint{{"name", Text}, {"weight", Real}, {"height", Integer}}
+	tb := structs.TableBlueprint{testTableName, cbs}
 	if err := CreateTable(db, tb); err != nil {
 		t.Fatal(err)
 	}
@@ -92,14 +93,14 @@ func TestValidateAndApostrophizeValues(t *testing.T) {
 }
 
 func TestGetColumnNames(t *testing.T) {
-	cbs := []ColumnBlueprint{{"name", Text}, {"weight", Real}, {"height", Integer}}
+	cbs := []structs.ColumnBlueprint{{"name", Text}, {"weight", Real}, {"height", Integer}}
 	expected := []string{"name", "weight", "height"}
 	result := getColumnNames(cbs)
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("Expected %v but got %v.", expected, result)
 	}
 
-	cbs = []ColumnBlueprint{}
+	cbs = []structs.ColumnBlueprint{}
 	expected = []string{}
 	result = getColumnNames(cbs)
 	if !reflect.DeepEqual(result, expected) {

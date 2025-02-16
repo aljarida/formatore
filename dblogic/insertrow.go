@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"formatore/structs"
 )
 
-func getColumnMetadata(db *sql.DB, tableName string) ([]ColumnBlueprint, error) {
+func getColumnMetadata(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, error) {
 	query := fmt.Sprintf("SELECT name, type FROM pragma_table_info('%s')", tableName)
 	rows, err := db.Query(query)
 
@@ -17,13 +18,13 @@ func getColumnMetadata(db *sql.DB, tableName string) ([]ColumnBlueprint, error) 
 
 	defer rows.Close()
 
-	var metadata []ColumnBlueprint
+	var metadata []structs.ColumnBlueprint
 	for rows.Next() {
 		var columnName, columnType string
 		if err := rows.Scan(&columnName, &columnType); err != nil {
 			return nil, fmt.Errorf("Error scanning table columns: ~%v~.", err)
 		}
-		metadata = append(metadata, ColumnBlueprint{columnName, columnType})
+		metadata = append(metadata, structs.ColumnBlueprint{columnName, columnType})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -46,7 +47,7 @@ func InferType(value string) string {
 	return Text
 }
 
-func validateAndApostrophizeValues(metadata []ColumnBlueprint, values []string) error {
+func validateAndApostrophizeValues(metadata []structs.ColumnBlueprint, values []string) error {
 	// Metadata always has one extra column for the autoincremented key.
 	metadata = metadata[1:] // Create slice that skips first entry.
 
@@ -71,7 +72,7 @@ func validateAndApostrophizeValues(metadata []ColumnBlueprint, values []string) 
 	return nil
 }
 
-func getColumnNames(metadata []ColumnBlueprint) []string {
+func getColumnNames(metadata []structs.ColumnBlueprint) []string {
 	res := make([]string, len(metadata))
 	for i, metadatum := range metadata {
 		res[i] = metadatum.Name

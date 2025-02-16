@@ -1,4 +1,4 @@
-package dblogic
+package structs
 
 // Stores a single column's name and type (e.g., "INTEGER").
 type ColumnBlueprint struct {

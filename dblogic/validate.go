@@ -2,11 +2,12 @@ package dblogic
 
 import (
 	"fmt"
+	"formatore/structs"
 )
 
 // Validates that the table name is not empty.
 // Validates that the column schema is not empty.
-func validateTableBlueprint(tb TableBlueprint) error {
+func validateTableBlueprint(tb structs.TableBlueprint) error {
 	if tb.Name == "" {
 		return fmt.Errorf("Empty table name.")
 	} else if len(tb.ColumnBlueprints) == 0 {
