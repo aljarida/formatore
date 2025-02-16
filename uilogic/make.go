@@ -1,9 +1,12 @@
 package uilogic
 
-/*
 import (
 	"fmt"
+	"formatore/dblogic"
 )
+
+// TODO: Consider using Termbox to implement cards.
+// NOTE: Consider how the architecture would change.
 
 func getName() string {
 	fmt.Println("Table name: ")
@@ -12,15 +15,21 @@ func getName() string {
 	return tableName
 }
 
-func getQuestionType() string {
+func getQuestionType() (string, error) {
 	fmt.Println("Type: ")
+	var questionType string
+	isValid := IsValidType(questionType)
+	if !isValid {
+		return "", fmt.Errorf("Invalid question type '%s'.", questionType)
+	}
+	fmt.Scanln(&questionType)
+	return questionType, nil
 }
 
 func getQuestion() Question {
 	fmt.Println("Question: ")
 	var question string
 	fmt.Scanln(question)
-
 	getQuestionType()
 }
 
@@ -38,4 +47,3 @@ func userMakeTable() {
 	tableName := getName()
 	questions := getQuestions()
 }
-*/
