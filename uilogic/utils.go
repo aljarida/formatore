@@ -9,11 +9,10 @@ func has(arr []string, s string) bool {
 	return false
 }
 
-
-func isCancel(s string) bool {
-	return has(cancelTokens, s)
-}
-
 func isQuit(s string) bool {
 	return has(quitTokens, s)
+}
+
+func isDone(s string) bool {
+	return has(doneTokens, s)
 }

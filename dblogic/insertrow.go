@@ -3,12 +3,10 @@ package dblogic
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
-	"time"
-	"formatore/structs"
+	"formatore/utils"
 )
 
-func getColumnMetadata(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, error) {
+func getColumnMetadata(db *sql.DB, tableName string) ([]utils.ColumnBlueprint, error) {
 	query := fmt.Sprintf("SELECT name, type FROM pragma_table_info('%s')", tableName)
 	rows, err := db.Query(query)
 
@@ -18,13 +16,13 @@ func getColumnMetadata(db *sql.DB, tableName string) ([]structs.ColumnBlueprint,
 
 	defer rows.Close()
 
-	var metadata []structs.ColumnBlueprint
+	var metadata []utils.ColumnBlueprint
 	for rows.Next() {
 		var columnName, columnType string
 		if err := rows.Scan(&columnName, &columnType); err != nil {
 			return nil, fmt.Errorf("Error scanning table columns: ~%v~.", err)
 		}
-		metadata = append(metadata, structs.ColumnBlueprint{columnName, columnType})
+		metadata = append(metadata, utils.ColumnBlueprint{columnName, columnType})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -34,20 +32,7 @@ func getColumnMetadata(db *sql.DB, tableName string) ([]structs.ColumnBlueprint,
 	return metadata, nil
 }
 
-// Infer the type of input as either INTEGER, REAL, or TEXT. (BLOB, NULL excluded.)
-func InferType(value string) string {
-	if _, err := strconv.Atoi(value); err == nil {
-		return Integer
-	}
-
-	if _, err := strconv.ParseFloat(value, 64); err == nil {
-		return Real
-	}
-
-	return Text
-}
-
-func validateAndApostrophizeValues(metadata []structs.ColumnBlueprint, values []string) error {
+func validateAndApostrophizeValues(metadata []utils.ColumnBlueprint, values []string) error {
 	// Metadata always has one extra column for the autoincremented key.
 	metadata = metadata[1:] // Create slice that skips first entry.
 
@@ -57,22 +42,22 @@ func validateAndApostrophizeValues(metadata []structs.ColumnBlueprint, values []
 
 	for i := 0; i < len(metadata); i++ {
 		expectedType := metadata[i].Type
-		actualType := InferType(values[i])
+		actualType := utils.InferType(values[i])
 		if expectedType != actualType {
 			msg := "Type mismatch: Table column %s has type %s but value %s has type %s: ~%v~."
 			return fmt.Errorf(msg, metadata[i].Name, expectedType, values[i], actualType)
 		}
 
 		// SQLite requires apostrophes around text.
-		if actualType == Text {
-			values[i] = joinStrings("'", values[i], "'")
+		if actualType == utils.Text {
+			values[i] = utils.JoinStrings("'", values[i], "'")
 		}
 	}
 
 	return nil
 }
 
-func getColumnNames(metadata []structs.ColumnBlueprint) []string {
+func getColumnNames(metadata []utils.ColumnBlueprint) []string {
 	res := make([]string, len(metadata))
 	for i, metadatum := range metadata {
 		res[i] = metadatum.Name
@@ -80,13 +65,9 @@ func getColumnNames(metadata []structs.ColumnBlueprint) []string {
 	return res
 }
 
-func unixTimestamp() string {
-	timestamp := time.Now().UTC().UnixNano()
-	return strconv.FormatInt(timestamp, 10)
-}
 
 func addTimestamp(values []string) []string {
-	return append([]string{unixTimestamp()}, values...)
+	return append([]string{utils.UnixTimestamp()}, values...)
 }
 
 func InsertRow(db *sql.DB, tableName string, values []string) error {
@@ -100,10 +81,10 @@ func InsertRow(db *sql.DB, tableName string, values []string) error {
 	}
 
 	columnNames := getColumnNames(metadata)
-	fmtColumnNames := joinWithCommasSpaces(columnNames)
+	fmtColumnNames := utils.JoinWithCommasSpaces(columnNames)
 
 	valuesWithTimestamp := addTimestamp(values)
-	fmtValues := joinWithCommasSpaces(valuesWithTimestamp)
+	fmtValues := utils.JoinWithCommasSpaces(valuesWithTimestamp)
 
 	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", tableName, fmtColumnNames, fmtValues)
 	if _, err = db.Exec(query); err != nil {

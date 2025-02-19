@@ -1,9 +1,11 @@
-package dblogic
+package utils
 
 import (
 	"fmt"
 	"strings"
 	"unicode"
+	"time"
+	"strconv"
 )
 
 // Supposedly complete list of SQLite keywords that need to be handled for identifier sanitization.
@@ -174,6 +176,10 @@ func IsReserved(str string) bool {
 	return ok
 }
 
+func IsNotReserved(str string) bool {
+	return !IsReserved(str)
+}
+
 // Determine if given string is a valid SQLite3 type.
 func IsValidType(str string) bool {
 	_, ok := validSQLite3Types[str]
@@ -197,7 +203,7 @@ func IsValidIdentifer(str string) error {
 
 // Function takes arbitrary # of strings.
 // Efficiently builds concatenated version.
-func joinStrings(strs ...string) string {
+func JoinStrings(strs ...string) string {
 	var builder strings.Builder
 	for _, str := range strs {
 		builder.WriteString(str)
@@ -205,8 +211,7 @@ func joinStrings(strs ...string) string {
 	return builder.String()	
 }
 
-// TODO: Add unit test.
-func joinWithCommasSpaces(values []string) string {
+func JoinWithCommasSpaces(values []string) string {
 	var builder strings.Builder
 	for i, value := range values {
 		if i > 0 {
@@ -218,3 +223,24 @@ func joinWithCommasSpaces(values []string) string {
 	return builder.String()
 }
 
+// TODO: Add unit test.
+var generateUnixTime = func() int64 {
+	return time.Now().UTC().UnixNano()
+}
+func UnixTimestamp() string {
+	timestamp := generateUnixTime()
+	return strconv.FormatInt(timestamp, 10)
+}
+
+// Infer the type of input as either INTEGER, REAL, or TEXT. (BLOB, NULL excluded.)
+func InferType(value string) string {
+	if _, err := strconv.Atoi(value); err == nil {
+		return Integer
+	}
+
+	if _, err := strconv.ParseFloat(value, 64); err == nil {
+		return Real
+	}
+
+	return Text
+}

@@ -1,4 +1,4 @@
-package dblogic
+package utils
 
 const PKeyFieldName = "id"
 const PKeyComp = PKeyFieldName + " INTEGER PRIMARY KEY AUTOINCREMENT, "

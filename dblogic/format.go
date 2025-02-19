@@ -2,7 +2,7 @@ package dblogic
 
 import (
 	"strings"
-	"formatore/structs"
+	"formatore/utils"
 )
 
 // Return name without spaces in lowercase.
@@ -16,7 +16,7 @@ func formatCBType(cbType string) string {
 }
 
 // Return formatted string versions of ColumnBlueprints' name and type.
-func formatColumnBlueprints(cbs []structs.ColumnBlueprint) []structs.ColumnBlueprint {
+func formatColumnBlueprints(cbs []utils.ColumnBlueprint) []utils.ColumnBlueprint {
 	for i := range cbs {
 		cbs[i].Name = formatCBName(cbs[i].Name)
 		cbs[i].Type = formatCBType(cbs[i].Type)

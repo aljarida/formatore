@@ -1,4 +1,4 @@
-package structs
+package utils
 
 // Stores a single column's name and type (e.g., "INTEGER").
 type ColumnBlueprint struct {

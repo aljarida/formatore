@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"formatore/structs"
+	"formatore/utils"
 )
 
 // Return formatted schema string for query using provided ColumnBlueprints.
-func columnBlueprintsToQueryComp(cbs []structs.ColumnBlueprint) string {
+func columnBlueprintsToQueryComp(cbs []utils.ColumnBlueprint) string {
 	var builder strings.Builder
 	for i, cb := range cbs {
 		n, t := cb.Name, cb.Type 
@@ -26,21 +26,21 @@ func columnBlueprintsToQueryComp(cbs []structs.ColumnBlueprint) string {
 // Given a TableBlueprint, returns a formatted create statement.
 // Automatically defines the primary key and the datetime fields.
 // Assumes tb is a validated TableBlueprint.
-func makeCreateQuery(tb structs.TableBlueprint) string {
+func makeCreateQuery(tb utils.TableBlueprint) string {
 	intro := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ", tb.Name)
 	body := columnBlueprintsToQueryComp(tb.ColumnBlueprints)
-	return joinStrings(intro,
+	return utils.JoinStrings(intro,
 				"(",
-				PKeyComp,
-				UnixDatetimeComp,
+				utils.PKeyComp,
+				utils.UnixDatetimeComp,
 				body,
 				");")
 }
 
 // Create a table from a provided TableBlueprint.
-func CreateTable(db *sql.DB, tb structs.TableBlueprint) error {
+func CreateTable(db *sql.DB, tb utils.TableBlueprint) error {
 	tb.ColumnBlueprints = formatColumnBlueprints(tb.ColumnBlueprints)
-	if err := validateTableBlueprint(tb); err != nil {
+	if err := utils.ValidateTableBlueprint(tb); err != nil {
 		return err
 	}
 

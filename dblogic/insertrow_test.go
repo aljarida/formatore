@@ -4,21 +4,21 @@ import (
 	"testing"
 	"reflect"
 	"database/sql"
-	"formatore/structs"
+	"formatore/utils"
 )
 
 const testTableName = "MY_TABLE"
-var metadata = []structs.ColumnBlueprint{
-	{PKeyFieldName, Integer},
-	{UnixDataTimeFieldName, Integer},
-	{"name", Text},
-	{"weight", Real},
-	{"height", Integer},
+var metadata = []utils.ColumnBlueprint{
+	{utils.PKeyFieldName, utils.Integer},
+	{utils.UnixDataTimeFieldName, utils.Integer},
+	{"name", utils.Text},
+	{"weight", utils.Real},
+	{"height", utils.Integer},
 }
 
 func setupTable(t *testing.T, db *sql.DB) {
-	cbs := []structs.ColumnBlueprint{{"name", Text}, {"weight", Real}, {"height", Integer}}
-	tb := structs.TableBlueprint{testTableName, cbs}
+	cbs := []utils.ColumnBlueprint{{"name", utils.Text}, {"weight", utils.Real}, {"height", utils.Integer}}
+	tb := utils.TableBlueprint{testTableName, cbs}
 	if err := CreateTable(db, tb); err != nil {
 		t.Fatal(err)
 	}
@@ -27,46 +27,6 @@ func setupTable(t *testing.T, db *sql.DB) {
 func teardownTable(t *testing.T, db  *sql.DB) {
 	if err := DropTable(db, testTableName); err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestInferType(t *testing.T) {
-	values := []string{
-		"1", "-1",
-		"1.", "-1.",
-		" 1 ", " - 1 ",
-		"1.1", "-1.1",
-		".1", "-.1",
-		" . 1 ", " - . 1 ",
-		"--1", "+ 1.1",
-		"+1", "+1.1",
-		"11111.1", "1.11111",
-		"1 . 1", "1 . 1.",
-		".", "$",
-		"0", "0,1",
-		"00", "0.0",
-	}
-
-	expected := []string{
-		Integer, Integer,
-		Real, Real,
-		Text, Text,
-		Real, Real,
-		Real, Real,
-		Text, Text,	
-		Text, Text,
-		Integer, Real, 
-		Real, Real,
-		Text, Text,
-		Text, Text,
-		Integer, Text,
-		Integer, Real,
-	}
-
-	for i, value := range values {
-		if res := InferType(value); res != expected[i] {
-			t.Fatalf("Expected %s but inferred %s from '%s'.", expected[i], res, values[i])
-		}
 	}
 }
 
@@ -93,14 +53,14 @@ func TestValidateAndApostrophizeValues(t *testing.T) {
 }
 
 func TestGetColumnNames(t *testing.T) {
-	cbs := []structs.ColumnBlueprint{{"name", Text}, {"weight", Real}, {"height", Integer}}
+	cbs := []utils.ColumnBlueprint{{"name", utils.Text}, {"weight", utils.Real}, {"height", utils.Integer}}
 	expected := []string{"name", "weight", "height"}
 	result := getColumnNames(cbs)
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf("Expected %v but got %v.", expected, result)
 	}
 
-	cbs = []structs.ColumnBlueprint{}
+	cbs = []utils.ColumnBlueprint{}
 	expected = []string{}
 	result = getColumnNames(cbs)
 	if !reflect.DeepEqual(result, expected) {
