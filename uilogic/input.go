@@ -1,7 +1,8 @@
 package uilogic
 
 import (
-	"fmt"
+	"bufio"
+	"os"
 )
 
 
@@ -12,9 +13,15 @@ type InputReader interface {
 // Console implementation
 type FmtInput struct{}
 func (r *FmtInput) Read() (string, error) {
-	var response string
-	_, err := fmt.Scanln(&response)
-	return response, err
+	reader := bufio.NewReader(os.Stdin)
+    response, err := reader.ReadString('\n') // Read until newline
+    if err != nil {
+        return "", err
+    }
+
+    // Remove the trailing newline character
+    response = response[:len(response)-1]
+    return response, nil
 }
 
 // Mock implementation

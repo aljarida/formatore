@@ -55,3 +55,41 @@ func DropTable(db *sql.DB, name string) error {
 	_, err := db.Exec(query)
 	return err
 }
+
+
+func scanRows[T any](
+	rows *sql.Rows,
+	scanFn func(*sql.Rows) (T, error)) ([]T, error) {
+		var results []T
+		for rows.Next() {
+			item, err := scanFn(rows)
+			if err != nil {
+				return nil, err	
+			}
+			results = append(results, item)
+		}
+		return results, rows.Err()
+}
+
+func queryAndScan[T any](
+	db *sql.DB,
+	query string,
+	scanFn func(*sql.Rows) (T, error)) ([]T, error) {
+		rows, err := db.Query(query)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		return scanRows(rows, scanFn)
+}
+
+// TODO: Add unit tests!
+func TableNames(db *sql.DB) ([]string, error) {
+	query := "SELECT name FROM sqlite_master WHERE type='table';"
+	scanFn := func(rows *sql.Rows) (string, error) {
+		var name string
+		err := rows.Scan(&name)
+		return name, err
+	}
+	return queryAndScan(db, query, scanFn)
+}

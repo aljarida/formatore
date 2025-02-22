@@ -14,8 +14,8 @@ func TestUiMakeTable(t *testing.T) {
 	t2 := utils.Text
 	input := []string{tableName, q1, t1, q2, t2, doneTokens[0]}
 	io := &IO{
-		i: &MockInput{input},
-		o: &MockOutput{},
+		I: &MockInput{input},
+		O: &MockOutput{},
 	}
 
 	expected := utils.TableBlueprint{

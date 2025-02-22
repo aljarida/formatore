@@ -8,30 +8,15 @@ import (
 
 func getColumnMetadata(db *sql.DB, tableName string) ([]utils.ColumnBlueprint, error) {
 	query := fmt.Sprintf("SELECT name, type FROM pragma_table_info('%s')", tableName)
-	rows, err := db.Query(query)
-
-	if err != nil {
-		return nil, err
+	scanFn := func(rows *sql.Rows) (utils.ColumnBlueprint, error) {
+		var colName, colType string
+		err := rows.Scan(&colName, &colType)
+		return utils.ColumnBlueprint{Name: colName, Type: colType}, err
 	}
-
-	defer rows.Close()
-
-	var metadata []utils.ColumnBlueprint
-	for rows.Next() {
-		var columnName, columnType string
-		if err := rows.Scan(&columnName, &columnType); err != nil {
-			return nil, fmt.Errorf("Error scanning table columns: ~%v~.", err)
-		}
-		metadata = append(metadata, utils.ColumnBlueprint{columnName, columnType})
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("Error with row iterator: ~%v~.", err)
-	}
-
-	return metadata, nil
+	return queryAndScan(db, query, scanFn)
 }
 
+// TODO: Move this into the utils.
 func validateAndApostrophizeValues(metadata []utils.ColumnBlueprint, values []string) error {
 	// Metadata always has one extra column for the autoincremented key.
 	metadata = metadata[1:] // Create slice that skips first entry.

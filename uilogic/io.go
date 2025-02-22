@@ -2,11 +2,12 @@ package uilogic
 
 import (
 	"formatore/utils"
+	"fmt"
 )
 
 type IO struct {
-	i InputReader
-	o OutputDisplay
+	I InputReader
+	O OutputDisplay
 }
 
 func (io *IO) getResponse(
@@ -16,17 +17,17 @@ func (io *IO) getResponse(
 	if validator == nil {
 		return "", ErrNeedValidator
 	}
-	
-	io.o.Display(prompt)
+
+	io.O.Display(prompt)
 	for {
-		response, err := io.i.Read()
+		response, err := io.I.Read()
 		if err != nil {
 			return "", err
 		}
-		
+	
 		valid := validator(response)
 		if !valid {
-			io.o.Display(invalidMsg)
+			io.O.Display(invalidMsg)
 			continue
 		} else if isDone(response) {
 			return "", ErrUserDone
@@ -38,7 +39,8 @@ func (io *IO) getResponse(
 	}
 }
 
-func (io *IO) getQuestion() (utils.ColumnBlueprint, error) {
+// Move the functions into separate files (along with their unit tests).
+func getQuestion(io *IO) (utils.ColumnBlueprint, error) {
 	qText, err := io.getResponse(utils.IsNotReserved, "Question:", "Invalid question.")
 	if err != nil {
 		return utils.ColumnBlueprint{}, err
@@ -52,11 +54,10 @@ func (io *IO) getQuestion() (utils.ColumnBlueprint, error) {
 	return utils.ColumnBlueprint{Name: qText, Type: qType}, nil
 }
 
-// TODO: Add unit tests.
-func (io *IO) getQuestions() ([]utils.ColumnBlueprint, error) {
+func getQuestions(io *IO) ([]utils.ColumnBlueprint, error) {
 	questions := []utils.ColumnBlueprint{}
 	for {
-		question, err := io.getQuestion()
+		question, err := getQuestion(io)
 		if err == ErrUserDone && len(questions) > 0 {
  			return questions, nil
 		} else if err == ErrUserDone { // && len(questions == 0)
@@ -67,4 +68,25 @@ func (io *IO) getQuestions() ([]utils.ColumnBlueprint, error) {
 			questions = append(questions, question)
 		}
 	}
+}
+
+// TODO: Add unit tests.
+func GetValues(io *IO, cbs []utils.ColumnBlueprint) ([]string, error) {
+	values := []string{}
+	for i, cb := range cbs {
+		prompt := fmt.Sprintf("%d. %s (%s):", i, cb.Name, cb.Type)
+		invalidMsg := "Answer must match type."
+		val := func(s string) bool {
+			return utils.InferType(s) == cb.Type
+		}
+
+		res, err := io.getResponse(val, prompt, invalidMsg)
+		if err != nil {
+			return nil, err
+		}
+
+		values = append(values, res)
+	}
+
+	return values, nil
 }
