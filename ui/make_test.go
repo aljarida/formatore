@@ -1,26 +1,27 @@
-package uilogic
+package ui
 
 import (
 	"testing"
-	"formatore/utils"
+	"formatore/enums"
+	"formatore/structs"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUiMakeTable(t *testing.T) {
 	tableName := "tableName"
 	q1 := "q1"
-	t1 := utils.Text
+	t1 := enums.Text
 	q2 := "q2"
-	t2 := utils.Text
+	t2 := enums.Text
 	input := []string{tableName, q1, t1, q2, t2, doneTokens[0]}
 	io := &IO{
 		I: &MockInput{input},
 		O: &MockOutput{},
 	}
 
-	expected := utils.TableBlueprint{
+	expected := structs.TableBlueprint{
 		Name: tableName,
-		ColumnBlueprints: []utils.ColumnBlueprint{{q1, t1}, {q2, t2}},
+		ColumnBlueprints: []structs.ColumnBlueprint{{q1, t1}, {q2, t2}},
 	}
 	result, err := UiMakeTable(io)
 	assert.NoError(t, err, "Should not error.")

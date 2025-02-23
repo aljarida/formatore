@@ -2,11 +2,13 @@ package utils
 
 import (
 	"fmt"
+	"formatore/structs"
+	"formatore/enums"
 )
 
 // Validates that the table name is not empty.
 // Validates that the column schema is not empty.
-func ValidateTableBlueprint(tb TableBlueprint) error {
+func ValidateTableBlueprint(tb structs.TableBlueprint) error {
 	if tb.Name == "" {
 		return fmt.Errorf("Empty table name.")
 	} else if len(tb.ColumnBlueprints) == 0 {
@@ -26,6 +28,31 @@ func ValidateTableBlueprint(tb TableBlueprint) error {
 
 		if err = IsValidIdentifer(cb.Name); err != nil {
 			return fmt.Errorf("At least one erroneous column name: ~%v~.", err)
+		}
+	}
+
+	return nil
+}
+
+func ValidateAndApostrophizeValues(metadata []structs.ColumnBlueprint, values []string) error {
+	// Metadata always has one extra column for the autoincremented key.
+	metadata = metadata[1:] // Create slice that skips first entry.
+
+	if len(metadata) != len(values) {
+		return fmt.Errorf("Mismatch between number of values and number of columns")
+	}
+
+	for i := 0; i < len(metadata); i++ {
+		expectedType := metadata[i].Type
+		actualType := InferType(values[i])
+		if expectedType != actualType {
+			msg := "Type mismatch: Table column %s has type %s but value %s has type %s: ~%v~."
+			return fmt.Errorf(msg, metadata[i].Name, expectedType, values[i], actualType)
+		}
+
+		// SQLite requires apostrophes around text.
+		if actualType == enums.Text {
+			values[i] = JoinStrings("'", values[i], "'")
 		}
 	}
 

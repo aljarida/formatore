@@ -2,177 +2,25 @@ package utils
 
 import (
 	"fmt"
-	"strings"
-	"unicode"
-	"time"
+	"formatore/enums"
 	"strconv"
+	"strings"
+	"time"
+	"unicode"
 )
-
-// Supposedly complete list of SQLite keywords that need to be handled for identifier sanitization.
-// Source 1: https://stackoverflow.com/questions/3373234/what-sqlite-column-name-can-be-cannot-be.
-// Source 2: claude.ai.
-var reservedKeywords = map[string]bool{
-    "ABORT": true,
-    "ACTION": true,
-    "ADD": true,
-    "AFTER": true,
-    "ALL": true,
-    "ALTER": true,
-    "ALWAYS": true,
-    "ANALYZE": true,
-    "AND": true,
-    "AS": true,
-    "ASC": true,
-    "ATTACH": true,
-    "AUTOINCREMENT": true,
-    "BEFORE": true,
-    "BEGIN": true,
-    "BETWEEN": true,
-    "BY": true,
-    "CASCADE": true,
-    "CASE": true,
-    "CAST": true,
-    "CHECK": true,
-    "COLLATE": true,
-    "COLUMN": true,
-    "COMMIT": true,
-    "CONFLICT": true,
-    "CONSTRAINT": true,
-    "CREATE": true,
-    "CROSS": true,
-    "CURRENT": true,
-    "CURRENT_DATE": true,
-    "CURRENT_TIME": true,
-    "CURRENT_TIMESTAMP": true,
-    "DATABASE": true,
-    "DEFAULT": true,
-    "DEFERRABLE": true,
-    "DEFERRED": true,
-    "DELETE": true,
-    "DESC": true,
-    "DETACH": true,
-    "DISTINCT": true,
-    "DO": true,
-    "DROP": true,
-    "EACH": true,
-    "ELSE": true,
-    "END": true,
-    "ESCAPE": true,
-    "EXCEPT": true,
-    "EXCLUDE": true,
-    "EXCLUSIVE": true,
-    "EXISTS": true,
-    "EXPLAIN": true,
-    "FAIL": true,
-    "FILTER": true,
-    "FIRST": true,
-    "FOLLOWING": true,
-    "FOR": true,
-    "FOREIGN": true,
-    "FROM": true,
-    "FULL": true,
-    "GENERATED": true,
-    "GLOB": true,
-    "GROUP": true,
-    "GROUPS": true,
-    "HAVING": true,
-    "IF": true,
-    "IGNORE": true,
-    "IMMEDIATE": true,
-    "IN": true,
-    "INDEX": true,
-    "INDEXED": true,
-    "INITIALLY": true,
-    "INNER": true,
-    "INSERT": true,
-    "INSTEAD": true,
-    "INTERSECT": true,
-    "INTO": true,
-    "IS": true,
-    "ISNULL": true,
-    "JOIN": true,
-    "KEY": true,
-    "LAST": true,
-    "LEFT": true,
-    "LIKE": true,
-    "LIMIT": true,
-    "MATCH": true,
-    "MATERIALIZED": true,
-    "NATURAL": true,
-    "NO": true,
-    "NOT": true,
-    "NOTHING": true,
-    "NOTNULL": true,
-    "NULL": true,
-    "NULLS": true,
-    "OF": true,
-    "OFFSET": true,
-    "ON": true,
-    "OR": true,
-    "ORDER": true,
-    "OTHERS": true,
-    "OUTER": true,
-    "OVER": true,
-    "PARTITION": true,
-    "PLAN": true,
-    "PRAGMA": true,
-    "PRECEDING": true,
-    "PRIMARY": true,
-    "QUERY": true,
-    "RAISE": true,
-    "RANGE": true,
-    "RECURSIVE": true,
-    "REFERENCES": true,
-    "REGEXP": true,
-    "REINDEX": true,
-    "RELEASE": true,
-    "RENAME": true,
-    "REPLACE": true,
-    "RESTRICT": true,
-    "RETURNING": true,
-    "RIGHT": true,
-    "ROLLBACK": true,
-    "ROW": true,
-    "ROWS": true,
-    "SAVEPOINT": true,
-    "SELECT": true,
-    "SET": true,
-    "TABLE": true,
-    "TEMP": true,
-    "TEMPORARY": true,
-    "THEN": true,
-    "TIES": true,
-    "TO": true,
-    "TRANSACTION": true,
-    "TRIGGER": true,
-    "UNBOUNDED": true,
-    "UNION": true,
-    "UNIQUE": true,
-    "UPDATE": true,
-    "USING": true,
-    "VACUUM": true,
-    "VALUES": true,
-    "VIEW": true,
-    "VIRTUAL": true,
-    "WHEN": true,
-    "WHERE": true,
-    "WINDOW": true,
-    "WITH": true,
-    "WITHOUT": true,
-}
 
 // Source: https://sqlite.org/datatype3.html
 var validSQLite3Types = map[string]bool{
-	"BLOB": true,
-	"INTEGER": true,
-	"REAL": true,
-	"TEXT": true,
+	enums.Blob: true,
+	enums.Integer: true,
+	enums.Real: true,
+	enums.Text: true,
 }
 
 // Determine if a given string is a reserved keyword.
 func IsReserved(str string) bool {
 	str = strings.ToUpper(str)
-	_, ok := reservedKeywords[str]
+	_, ok := enums.ReservedKeywords[str]
 	return ok
 }
 
@@ -224,6 +72,15 @@ func JoinWithCommasSpaces(values []string) string {
 }
 
 // TODO: Add unit test.
+func Apply[T any, R any](items []T, mapFn func(item T) R) []R {
+	res := make([]R, len(items))	
+	for i, item := range items {
+		res[i] = mapFn(item)
+	}
+	return res
+}
+
+// TODO: Add unit test.
 var generateUnixTime = func() int64 {
 	return time.Now().UTC().UnixNano()
 }
@@ -235,12 +92,21 @@ func UnixTimestamp() string {
 // Infer the type of input as either INTEGER, REAL, or TEXT. (BLOB, NULL excluded.)
 func InferType(value string) string {
 	if _, err := strconv.Atoi(value); err == nil {
-		return Integer
+		return enums.Integer
 	}
 
 	if _, err := strconv.ParseFloat(value, 64); err == nil {
-		return Real
+		return enums.Real
 	}
 
-	return Text
+	return enums.Text
+}
+
+func Has(arr []string, s string) bool {
+	for _, t := range arr {
+		if s == t {
+			return true
+		}
+	}
+	return false
 }

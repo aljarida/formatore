@@ -1,7 +1,8 @@
-package uilogic
+package ui
 
 import (
 	"formatore/utils"
+	"formatore/structs"
 	"fmt"
 )
 
@@ -10,7 +11,7 @@ type IO struct {
 	O OutputDisplay
 }
 
-func (io *IO) getResponse(
+func (io *IO) GetResponse(
 		validator func(string) bool,
 		prompt string,
 		invalidMsg string) (string, error) {
@@ -39,31 +40,37 @@ func (io *IO) getResponse(
 	}
 }
 
-// Move the functions into separate files (along with their unit tests).
-func getQuestion(io *IO) (utils.ColumnBlueprint, error) {
-	qText, err := io.getResponse(utils.IsNotReserved, "Question:", "Invalid question.")
-	if err != nil {
-		return utils.ColumnBlueprint{}, err
+func (io *IO) DisplayMany(strings ...string) {
+	for _, s := range strings {
+		io.O.Display(s)
 	}
-
-	qType, err := io.getResponse(utils.IsValidType, "Type:", "Invalid type.")
-	if err != nil {
-		return utils.ColumnBlueprint{}, err
-	}
-
-	return utils.ColumnBlueprint{Name: qText, Type: qType}, nil
 }
 
-func getQuestions(io *IO) ([]utils.ColumnBlueprint, error) {
-	questions := []utils.ColumnBlueprint{}
+// Move the functions into separate files (along with their unit tests).
+func getQuestion(io *IO) (structs.ColumnBlueprint, error) {
+	qText, err := io.GetResponse(utils.IsNotReserved, "Question:", "Invalid question.")
+	if err != nil {
+		return structs.ColumnBlueprint{}, err
+	}
+
+	qType, err := io.GetResponse(utils.IsValidType, "Type:", "Invalid type.")
+	if err != nil {
+		return structs.ColumnBlueprint{}, err
+	}
+
+	return structs.ColumnBlueprint{Name: qText, Type: qType}, nil
+}
+
+func getQuestions(io *IO) ([]structs.ColumnBlueprint, error) {
+	questions := []structs.ColumnBlueprint{}
 	for {
 		question, err := getQuestion(io)
 		if err == ErrUserDone && len(questions) > 0 {
  			return questions, nil
 		} else if err == ErrUserDone { // && len(questions == 0)
-			return []utils.ColumnBlueprint{}, ErrUserQuit
+			return []structs.ColumnBlueprint{}, ErrUserQuit
 		} else if err != nil {
-			return []utils.ColumnBlueprint{}, err
+			return []structs.ColumnBlueprint{}, err
 		} else {
 			questions = append(questions, question)
 		}
@@ -71,7 +78,7 @@ func getQuestions(io *IO) ([]utils.ColumnBlueprint, error) {
 }
 
 // TODO: Add unit tests.
-func GetValues(io *IO, cbs []utils.ColumnBlueprint) ([]string, error) {
+func GetValues(io *IO, cbs []structs.ColumnBlueprint) ([]string, error) {
 	values := []string{}
 	for i, cb := range cbs {
 		prompt := fmt.Sprintf("%d. %s (%s):", i, cb.Name, cb.Type)
@@ -80,7 +87,7 @@ func GetValues(io *IO, cbs []utils.ColumnBlueprint) ([]string, error) {
 			return utils.InferType(s) == cb.Type
 		}
 
-		res, err := io.getResponse(val, prompt, invalidMsg)
+		res, err := io.GetResponse(val, prompt, invalidMsg)
 		if err != nil {
 			return nil, err
 		}

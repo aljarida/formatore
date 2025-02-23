@@ -1,9 +1,10 @@
-package uilogic
+package ui
 
 import (
 	"errors"
 )
 
+// TODO: Move these into enums.
 const ansiEscapeCode = "\033[h\033[2J"
 
 var quitTokens = []string{"q"}

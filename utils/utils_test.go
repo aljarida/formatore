@@ -2,6 +2,7 @@ package utils
 
 import (
 	"testing"
+	"formatore/enums"
 )
 
 func TestJoinStrings (t *testing.T) {
@@ -105,19 +106,19 @@ func TestInferType(t *testing.T) {
 	}
 
 	expected := []string{
-		Integer, Integer,
-		Real, Real,
-		Text, Text,
-		Real, Real,
-		Real, Real,
-		Text, Text,	
-		Text, Text,
-		Integer, Real, 
-		Real, Real,
-		Text, Text,
-		Text, Text,
-		Integer, Text,
-		Integer, Real,
+		enums.Integer, enums.Integer,
+		enums.Real, enums.Real,
+		enums.Text, enums.Text,
+		enums.Real, enums.Real,
+		enums.Real, enums.Real,
+		enums.Text, enums.Text,	
+		enums.Text, enums.Text,
+		enums.Integer, enums.Real, 
+		enums.Real, enums.Real,
+		enums.Text, enums.Text,
+		enums.Text, enums.Text,
+		enums.Integer, enums.Text,
+		enums.Integer, enums.Real,
 	}
 
 	for i, value := range values {

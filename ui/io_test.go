@@ -1,7 +1,9 @@
-package uilogic
+package ui
 
 import (
+	"formatore/enums"
 	"formatore/utils"
+	"formatore/structs"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,28 +15,28 @@ func TestGetResponse(t *testing.T) {
 		O: &MockOutput{},
 	}
 
-	result, _ := io.getResponse(utils.IsNotReserved, "", "")
+	result, _ := io.GetResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, expected, result, "Should be equal.")
 
 	io.I = &MockInput{[]string{"NULL", expected}}
-	result, _ = io.getResponse(utils.IsNotReserved, "", "")
+	result, _ = io.GetResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, expected, result, "Should be equal.")
 
-	_, err := io.getResponse(nil, "", "")
+	_, err := io.GetResponse(nil, "", "")
 	assert.Equal(t, ErrNeedValidator, err, "Should be equal.")
 
 	io.I = &MockInput{[]string{quitTokens[0]}}
-	_, err = io.getResponse(utils.IsNotReserved, "", "")
+	_, err = io.GetResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, ErrUserQuit, err, "Should be equal.")
 	
 	io.I = &MockInput{[]string{doneTokens[0]}}
-	_, err = io.getResponse(utils.IsNotReserved, "", "")
+	_, err = io.GetResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, ErrUserDone, err, "Should be equal.")
 }
 
 func TestGetQuestion(t *testing.T) {
 	expectedN := "What?" 
-	expectedT := utils.Text
+	expectedT := enums.Text
 	io := &IO{
 		I: &MockInput{[]string{"NULL", "PRAGMA", "JOIN", expectedN, "SELECT", expectedT}},
 		O: &MockOutput{},
@@ -60,9 +62,9 @@ func TestGetQuestion(t *testing.T) {
 func TestGetQuestions(t *testing.T) {
 	// Test set 1:
 	q1 := "q1"
-	t1 := utils.Text
+	t1 := enums.Text
 	q2 := "q2"
-	t2 := utils.Text
+	t2 := enums.Text
 	input := []string{q1, t1,
 					  q2, t2,
 					  doneTokens[0]}
@@ -71,9 +73,9 @@ func TestGetQuestions(t *testing.T) {
 		O: &MockOutput{},
 	}
 
-	expected := []utils.ColumnBlueprint{
-		{q1, t1},
-		{q2, t2},
+	expected := []structs.ColumnBlueprint{
+		{Name: q1, Type: t1},
+		{Name: q2, Type: t2},
 	}
 	result, err := getQuestions(io)
 	assert.NoError(t, err, "Should not error.")

@@ -1,4 +1,4 @@
-package uilogic
+package ui
 
 import (
 	"fmt"

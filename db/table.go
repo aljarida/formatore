@@ -1,14 +1,17 @@
-package dblogic
+package db
 
 import (
 	"database/sql"
 	"fmt"
 	"strings"
 	"formatore/utils"
+	"formatore/enums"
+	"formatore/structs"
 )
 
-// Return formatted schema string for query using provided ColumnBlueprints.
-func columnBlueprintsToQueryComp(cbs []utils.ColumnBlueprint) string {
+// Return formatted schema string for use in SQL queries.
+// Uses the provided ColumnBlueprint array.
+func columnBlueprintsToQueryComp(cbs []structs.ColumnBlueprint) string {
 	var builder strings.Builder
 	for i, cb := range cbs {
 		n, t := cb.Name, cb.Type 
@@ -26,20 +29,20 @@ func columnBlueprintsToQueryComp(cbs []utils.ColumnBlueprint) string {
 // Given a TableBlueprint, returns a formatted create statement.
 // Automatically defines the primary key and the datetime fields.
 // Assumes tb is a validated TableBlueprint.
-func makeCreateQuery(tb utils.TableBlueprint) string {
+func makeCreateQuery(tb structs.TableBlueprint) string {
 	intro := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ", tb.Name)
 	body := columnBlueprintsToQueryComp(tb.ColumnBlueprints)
 	return utils.JoinStrings(intro,
 				"(",
-				utils.PKeyComp,
-				utils.UnixDatetimeComp,
+				enums.PKeyComp,
+				enums.UnixDatetimeComp,
 				body,
 				");")
 }
 
 // Create a table from a provided TableBlueprint.
-func CreateTable(db *sql.DB, tb utils.TableBlueprint) error {
-	tb.ColumnBlueprints = formatColumnBlueprints(tb.ColumnBlueprints)
+func CreateTable(db *sql.DB, tb structs.TableBlueprint) error {
+	formatColumnBlueprints(tb.ColumnBlueprints)
 	if err := utils.ValidateTableBlueprint(tb); err != nil {
 		return err
 	}
@@ -56,40 +59,26 @@ func DropTable(db *sql.DB, name string) error {
 	return err
 }
 
-
-func scanRows[T any](
-	rows *sql.Rows,
-	scanFn func(*sql.Rows) (T, error)) ([]T, error) {
-		var results []T
-		for rows.Next() {
-			item, err := scanFn(rows)
-			if err != nil {
-				return nil, err	
-			}
-			results = append(results, item)
-		}
-		return results, rows.Err()
-}
-
-func queryAndScan[T any](
-	db *sql.DB,
-	query string,
-	scanFn func(*sql.Rows) (T, error)) ([]T, error) {
-		rows, err := db.Query(query)
-		if err != nil {
-			return nil, err
-		}
-		defer rows.Close()
-		return scanRows(rows, scanFn)
-}
-
-// TODO: Add unit tests!
 func TableNames(db *sql.DB) ([]string, error) {
-	query := "SELECT name FROM sqlite_master WHERE type='table';"
+	query := "SELECT name FROM sqlite_master WHERE TYPE='table' AND name != 'sqlite_sequence';"
 	scanFn := func(rows *sql.Rows) (string, error) {
 		var name string
 		err := rows.Scan(&name)
 		return name, err
 	}
 	return queryAndScan(db, query, scanFn)
+}
+
+func DropAllTables(db * sql.DB) error {
+	tableNames, err := TableNames(db) 
+	if err != nil {
+		return err
+	}
+	for _, name := range tableNames {
+		err := DropTable(db, name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
