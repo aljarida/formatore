@@ -6,7 +6,7 @@ import (
 	"formatore/utils"
 )
 
-func UiMakeTable(io *IO) (structs.TableBlueprint, error) {
+func MakeTable(io *IO) (structs.TableBlueprint, error) {
 	tableName, err := io.GetResponse(utils.IsNotReserved, "Table name:", "Invalid table name.")
 	if err != nil {
 		return structs.TableBlueprint{}, err

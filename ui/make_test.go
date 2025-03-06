@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUiMakeTable(t *testing.T) {
+func TestMakeTable(t *testing.T) {
 	tableName := "tableName"
 	q1 := "q1"
 	t1 := enums.Text
@@ -23,7 +23,7 @@ func TestUiMakeTable(t *testing.T) {
 		Name: tableName,
 		ColumnBlueprints: []structs.ColumnBlueprint{{q1, t1}, {q2, t2}},
 	}
-	result, err := UiMakeTable(io)
+	result, err := MakeTable(io)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, expected, result, "Should be equal.")
 }

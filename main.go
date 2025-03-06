@@ -1,9 +1,13 @@
 package main
 
 import (
+	"database/sql"
+	"formatore/utils"
 	"fmt"
+	"formatore/db"
+	"formatore/enums"
 	"formatore/ui"
-	"time"
+	"strings"
 )
 
 var commonIO = &ui.IO{
@@ -11,36 +15,88 @@ var commonIO = &ui.IO{
 	O: &ui.FmtOutput{},
 }
 
-func makeTable() {
-	fmt.Println("Made a table!")
-	time.Sleep(time.Second * 10)
+var dbase *sql.DB
+
+func mainHandleErr(err error) {
+	if err != nil {
+		fmt.Printf("Unexpected error: ~%v~. Terminating.", err)
+	}
+}
+
+func MakeTable() {
+	tb, err := ui.MakeTable(commonIO)
+	mainHandleErr(err)
+	db.CreateTable(dbase, tb)
+}
+
+/* NOTE: Potential callback which could be added as a property.
+func ViewTables() {
+	names, err := db.TableNames(dbase)
+	mainHandleErr(err)
+	for _, n := range names {
+		commonIO.O.Display(n)
+	}
+	commonIO.O.Display("\n")
+}
+*/
+
+
+func getTableNames() string {
+	names, err := db.TableNames(dbase)
+	mainHandleErr(err)
+	var builder strings.Builder
+	for _, n := range names { 
+		builder.WriteString(fmt.Sprintf("%s\n", n))
+	}
+	return builder.String()
+}
+
+func addToTable() {
+	names, err := db.TableNames(dbase)
+	mainHandleErr(err)
+	
+	validator := func(s string) bool {
+		return utils.Has(names, s)
+	}
+
+	commonIO.O.Display(getTableNames())
+
+	tableName, err := commonIO.GetResponse(validator,
+										   "Table name:",
+										   "Must be an existent table.")
+	mainHandleErr(err)
+
+	cbs, err := db.ColumnBlueprints(dbase, tableName)
+	mainHandleErr(err)
+
+	values, err := ui.GetValues(commonIO, cbs[2:])
+	mainHandleErr(err)
+
+	err = db.InsertRow(dbase, tableName, values)
+	mainHandleErr(err)
 }
 
 func main () {
-	var MainMenu *ui.ConsoleMenu
-	var SecondaryMenu *ui.ConsoleMenu
+	var err error
+	dbase, err = db.ConnectToDB(enums.DBName)
+	mainHandleErr(err)
 
-	SecondaryMenu = &ui.ConsoleMenu{
-		IO: commonIO,
-		Status: "Task completed.",
-		Children: map[string]*ui.ConsoleMenu{},
-	}
+	var MainMenu *ui.ConsoleMenu
 
 	MainMenu = &ui.ConsoleMenu{
 		IO: commonIO,
-		Status: "Welcome!",
-		Children: map[string]*ui.ConsoleMenu{
-			"child": SecondaryMenu,
-		},
+		Status: "Welcome to Formatore.",
 		Options: map[string]func() {
-			"make table": makeTable,
+			"New table": MakeTable,
+			"Add to table": addToTable,
+		},
+		// TODO: It's possibly better to create callback functions for the menus rather than creating wrapper functions. Look into this.
+		Children: map[string]*ui.ConsoleMenu {
+			"View tables": &ui.ConsoleMenu{IO: commonIO, Status: getTableNames()},
 		},
 	}
 
-	SecondaryMenu.Children["main"] = MainMenu
-
 	MainMenu.Initialize()
-	SecondaryMenu.Initialize()
 
 	var menu *ui.ConsoleMenu
 	menu = MainMenu
