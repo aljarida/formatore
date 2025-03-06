@@ -40,12 +40,6 @@ func (io *IO) GetResponse(
 	}
 }
 
-func (io *IO) DisplayMany(strings ...string) {
-	for _, s := range strings {
-		io.O.Display(s)
-	}
-}
-
 // Move the functions into separate files (along with their unit tests).
 func getQuestion(io *IO) (structs.ColumnBlueprint, error) {
 	qText, err := io.GetResponse(utils.IsNotReserved, "Question:", "Invalid question.")

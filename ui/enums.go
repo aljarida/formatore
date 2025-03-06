@@ -5,7 +5,7 @@ import (
 )
 
 // TODO: Move these into enums.
-const ansiEscapeCode = "\033[h\033[2J"
+const ansiEscapeCode = "\033[H\033[J"
 
 var quitTokens = []string{"q"}
 var doneTokens = []string{"d"}
