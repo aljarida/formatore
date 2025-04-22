@@ -70,7 +70,7 @@ func (cm *ConsoleMenu) Input() {
 }
 
 func (cm *ConsoleMenu) Visualize() {
-	cm.IO.O.ClearScreen()
+	// NOTE: Temporarily commented out for debugging: cm.IO.O.ClearScreen()
 
 	cm.displayln(cm.Status)
 

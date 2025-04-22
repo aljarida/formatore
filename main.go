@@ -45,6 +45,7 @@ func getTableNames() string {
 	names, err := db.TableNames(dbase)
 	mainHandleErr(err)
 	var builder strings.Builder
+	fmt.Printf("Found the following tables: %v", names)
 	for _, n := range names { 
 		builder.WriteString(fmt.Sprintf("%s\n", n))
 	}
