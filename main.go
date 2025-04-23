@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"formatore/utils"
+	"strconv"
 	"fmt"
 	"formatore/db"
 	"formatore/enums"
@@ -19,14 +20,15 @@ var dbase *sql.DB
 
 func mainHandleErr(err error) {
 	if err != nil {
-		fmt.Printf("Unexpected error: ~%v~. Terminating.", err)
+		fmt.Errorf("Unexpected error: ~%v~. Terminating.", err)
 	}
 }
 
 func MakeTable() {
 	tb, err := ui.MakeTable(commonIO)
 	mainHandleErr(err)
-	db.CreateTable(dbase, tb)
+	err = db.CreateTable(dbase, tb)
+	mainHandleErr(err)
 }
 
 /* NOTE: Potential callback which could be added as a property.
@@ -45,11 +47,14 @@ func getTableNames() string {
 	names, err := db.TableNames(dbase)
 	mainHandleErr(err)
 	var builder strings.Builder
-	fmt.Printf("Found the following tables: %v", names)
 	for _, n := range names { 
 		builder.WriteString(fmt.Sprintf("%s\n", n))
 	}
 	return builder.String()
+}
+
+func displayTableNames() {
+	commonIO.O.Display(getTableNames())
 }
 
 func addToTable() {
@@ -77,27 +82,65 @@ func addToTable() {
 	mainHandleErr(err)
 }
 
+
+func dropAllTables() {
+	err := db.DropAllTables(dbase)
+	mainHandleErr(err)
+	fmt.Printf("Dropped all tables!")
+}
+
+// TODO: Move to utils. Check that this wasn't implemented already.
+func isPositiveInteger(s string) (bool, int) {
+    n, err := strconv.Atoi(s)
+    if err != nil || n <= 0 {
+        return false, 0
+    }
+    return true, n
+}
+
+func printTablePreview() {
+	names, err := db.TableNames(dbase)
+	mainHandleErr(err)
+	validator := func(s string) bool {
+		return utils.Has(names, s)
+	}
+	tableName, err := commonIO.GetResponse(validator,
+										   "Table name:",
+										   "Must be an existent table")
+	mainHandleErr(err)
+	validator = func(s string) bool {
+		ok, _ := isPositiveInteger(s)
+		return ok
+	}
+	nStr, err := commonIO.GetResponse(validator, "Number of rows:", "Must be positive integer.")
+	_, n := isPositiveInteger(nStr)
+	preview, err := db.PreviewLastN(dbase, tableName, n)
+	mainHandleErr(err)
+	commonIO.O.Display(preview)
+}
+
 func main () {
 	var err error
 	dbase, err = db.ConnectToDB(enums.DBName)
 	mainHandleErr(err)
+	fmt.Println("Connected to database!")
 
 	var MainMenu *ui.ConsoleMenu
 
 	MainMenu = &ui.ConsoleMenu{
 		IO: commonIO,
-		Status: "Welcome to Formatore.",
+		InitialMessage: "Welcome to Formatore.",
 		Options: map[string]func() {
 			"New table": MakeTable,
 			"Add to table": addToTable,
-		},
-		// TODO: It's possibly better to create callback functions for the menus rather than creating wrapper functions. Look into this.
-		Children: map[string]*ui.ConsoleMenu {
-			"View tables": &ui.ConsoleMenu{IO: commonIO, Status: getTableNames()},
+			"View tables": displayTableNames,
+			"Drop all tables!": dropAllTables,
+			"Preview tables!": printTablePreview,
 		},
 	}
 
 	MainMenu.Initialize()
+	fmt.Println("Initialized main menu!")
 
 	var menu *ui.ConsoleMenu
 	menu = MainMenu

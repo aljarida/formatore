@@ -8,8 +8,8 @@ import (
 var BACK_TOKENS = []string{"b", "back"}
 
 type ConsoleMenu struct {
-	IO *IO // Displays status and options.
-	Status string // For displaying main text.
+	IO *IO // Displays messages and options.
+	InitialMessage string
 	Options map[string]func() // Functions which may be called.
 	Children map[string]*ConsoleMenu // Menus which may be navigated to.
 	Parent *ConsoleMenu // Link to prior menu.
@@ -72,7 +72,7 @@ func (cm *ConsoleMenu) Input() {
 func (cm *ConsoleMenu) Visualize() {
 	// NOTE: Temporarily commented out for debugging: cm.IO.O.ClearScreen()
 
-	cm.displayln(cm.Status)
+	cm.displayln(cm.InitialMessage)
 
 	if len(cm.Options) > 0 {
 		cm.display("Options:")
