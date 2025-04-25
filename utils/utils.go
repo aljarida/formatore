@@ -72,7 +72,7 @@ func JoinWithCommasSpaces(values []string) string {
 }
 
 // TODO: Add unit test.
-func Apply[T any, R any](items []T, mapFn func(item T) R) []R {
+func Map[T any, R any](items []T, mapFn func(item T) R) []R {
 	res := make([]R, len(items))	
 	for i, item := range items {
 		res[i] = mapFn(item)

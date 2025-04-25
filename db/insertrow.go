@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"formatore/structs"
 	"formatore/utils"
+	"log"
 )
 
 func ColumnBlueprints(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, error) {
@@ -24,6 +25,13 @@ func extractColumnNames(cbs []structs.ColumnBlueprint) []string {
 	return utils.Apply(cbs, mapFn)
 }
 
+func extractColumnNamesModuloID(cbs []structs.ColumnBlueprint) ([]string, error) {
+	if cbs[0].Name == "ID" {
+		return []string{}, fmt.Errorf("First column name did not match 'ID'.")
+	}
+	return extractColumnNames(cbs)[1:], nil
+}
+
 func addTimestamp(values []string) []string {
 	return append([]string{utils.UnixTimestamp()}, values...)
 }
@@ -34,17 +42,22 @@ func InsertRow(db *sql.DB, tableName string, values []string) error {
 		return err
 	}
 
-	if err := utils.ValidateAndApostrophizeValues(cbs, values); err != nil {
+	valuesWithTimestamp := addTimestamp(values)
+	if err := utils.ValidateAndApostrophizeValues(cbs, valuesWithTimestamp); err != nil {
 		return err
 	}
 
-	columnNames := extractColumnNames(cbs)
+	columnNames, err := extractColumnNamesModuloID(cbs) 
+	if err != nil {
+		return err
+	}
 	fmtColumnNames := utils.JoinWithCommasSpaces(columnNames)
 
-	valuesWithTimestamp := addTimestamp(values)
 	fmtValues := utils.JoinWithCommasSpaces(valuesWithTimestamp)
+	log.Println(fmtValues)
 
 	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", tableName, fmtColumnNames, fmtValues)
+	log.Println(query)
 	if _, err = db.Exec(query); err != nil {
 		return fmt.Errorf("Failed to insert into %s: ~%v~.", tableName, err)
 	}

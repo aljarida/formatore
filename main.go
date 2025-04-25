@@ -20,7 +20,7 @@ var dbase *sql.DB
 
 func mainHandleErr(err error) {
 	if err != nil {
-		fmt.Errorf("Unexpected error: ~%v~. Terminating.", err)
+		panic(err)
 	}
 }
 
@@ -74,9 +74,11 @@ func addToTable() {
 
 	cbs, err := db.ColumnBlueprints(dbase, tableName)
 	mainHandleErr(err)
+	fmt.Println(cbs)
 
 	values, err := ui.GetValues(commonIO, cbs[2:])
 	mainHandleErr(err)
+	fmt.Println(values)
 
 	err = db.InsertRow(dbase, tableName, values)
 	mainHandleErr(err)
