@@ -11,7 +11,16 @@ type IO struct {
 	O OutputDisplay
 }
 
-func (io *IO) GetResponse(
+func (io *IO) GetResponse(prompt string) (string, error) {
+	io.O.Display(prompt)
+	response, err := io.I.Read()
+	if err != nil {
+		return "", err
+	}
+	return response, nil
+}
+
+func (io *IO) LoopUntilValidResponse(
 		validator func(string) bool,
 		prompt string,
 		invalidMsg string) (string, error) {
@@ -42,12 +51,12 @@ func (io *IO) GetResponse(
 
 // Move the functions into separate files (along with their unit tests).
 func getQuestion(io *IO) (structs.ColumnBlueprint, error) {
-	qText, err := io.GetResponse(utils.IsNotReserved, "Question:", "Invalid question.")
+	qText, err := io.LoopUntilValidResponse(utils.IsNotReserved, "Question:", "Invalid question.")
 	if err != nil {
 		return structs.ColumnBlueprint{}, err
 	}
 
-	qType, err := io.GetResponse(utils.IsValidType, "Type:", "Invalid type.")
+	qType, err := io.LoopUntilValidResponse(utils.IsValidType, "Type:", "Invalid type.")
 	if err != nil {
 		return structs.ColumnBlueprint{}, err
 	}
@@ -75,13 +84,13 @@ func getQuestions(io *IO) ([]structs.ColumnBlueprint, error) {
 func GetValues(io *IO, cbs []structs.ColumnBlueprint) ([]string, error) {
 	values := []string{}
 	for i, cb := range cbs {
-		prompt := fmt.Sprintf("%d. %s (%s):", i, cb.Name, cb.Type)
+		prompt := fmt.Sprintf("%d. %s (%s):", i, prettyColumnNameAsQuestion(cb.Name), cb.Type)
 		invalidMsg := "Answer must match type."
 		val := func(s string) bool {
 			return utils.InferType(s) == cb.Type
 		}
 
-		res, err := io.GetResponse(val, prompt, invalidMsg)
+		res, err := io.LoopUntilValidResponse(val, prompt, invalidMsg)
 		if err != nil {
 			return nil, err
 		}

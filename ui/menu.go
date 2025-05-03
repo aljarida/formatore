@@ -7,56 +7,56 @@ import (
 
 var BACK_TOKENS = []string{"b", "back"}
 
-type ConsoleMenu struct {
-	IO *IO // Displays messages and options.
-	InitialMessage string
-	Options map[string]func() // Functions which may be called.
-	Children map[string]*ConsoleMenu // Menus which may be navigated to.
-	Parent *ConsoleMenu // Link to prior menu.
+type Headers struct {
+	Title string
+	Guidance string
+	Error string
+}
 
+type Callbacks struct {
+	PreCallback func()
+	PostCallback func()
+}
+
+type ConsoleMenu struct {
+	IO *IO // IO for obtaining and sending messages.
+	Options map[string]func() // Functions which may be called.
+	Parent *ConsoleMenu // Link to prior menu.
+	Headers Headers // UI textual displays.
+	Callbacks Callbacks
+
+	next *ConsoleMenu // Link to next menu.
 	choice string // Stores user response.
-	keyToOption map[string]string // Example: 'q' -> "quit".
-	keyToChild map[string]string // Example: 'n' -> "next".
+	charToOptionName map[string]string // Example: 'q' -> "quit".
 }
 
 func (cm *ConsoleMenu) display(s string) {
 	cm.IO.O.Display(s)
 }
 
-// Serves as a wrapper for the output's Display method.
-func (cm *ConsoleMenu) displayln(s string) {
-	cm.IO.O.Display(fmt.Sprintf("%s\n", s))
+func (cm *ConsoleMenu) newline() {
+	cm.displayln("")
 }
 
-// Takes a string, returns parentheses around the first character.
-func (cm *ConsoleMenu) pretty(s string) string {
-	if len(s) < 1 {
-		return s
-	}
+func (cm *ConsoleMenu) deliverHeaders() {
+	cm.displayln(cm.Headers.Title)
+	cm.displayln(cm.Headers.Guidance)
+	cm.displayln(cm.Headers.Error)
+}
 
-	extra := ""
-	if len(s) > 1 {
-		extra = s[1:]
-	}
-
-	return utils.JoinStrings("(", string(s[0]), ")", extra)
+func (cm *ConsoleMenu) displayln(s string) {
+	cm.IO.O.Display(fmt.Sprintf("%s\n", s))
 }
 
 // Obtains user next choice and stores it.
 func (cm *ConsoleMenu) Input() {
 	validator := func(s string) bool {
-		_, childFullExists := cm.Children[s]
 		_, optionFullExists := cm.Options[s]
-		_, childAbbrevExists := cm.keyToChild[s]
-		_, optionAbbrevExists := cm.keyToOption[s] 	
-
-		existsFull := childFullExists || optionFullExists
-		existsAbbrev := childAbbrevExists || optionAbbrevExists
-
-		return existsAbbrev || existsFull || utils.Has(BACK_TOKENS, s)
+		_, optionAbbrevExists := cm.charToOptionName[s] 	
+		return optionFullExists || optionAbbrevExists || utils.Has(BACK_TOKENS, s)
 	}
 
-	response, err := cm.IO.GetResponse(
+	response, err := cm.IO.LoopUntilValidResponse(
 		validator, 
 		"Choice:",
 		"Choice must be a single character and match available choices.",
@@ -69,41 +69,44 @@ func (cm *ConsoleMenu) Input() {
 	cm.choice = response
 }
 
-func (cm *ConsoleMenu) Visualize() {
-	// NOTE: Temporarily commented out for debugging: cm.IO.O.ClearScreen()
-
-	cm.displayln(cm.InitialMessage)
-
-	if len(cm.Options) > 0 {
-		cm.display("Options:")
-		for k := range cm.Options {
-			cm.display(cm.pretty(k))
-		}
+func (cm *ConsoleMenu) invokePreCallback() {
+	if cm.Callbacks.PreCallback != nil {
+		cm.Callbacks.PreCallback()
 	}
-	cm.display("\n")
-
-	if len(cm.Children) > 0 {
-		cm.display("Menus:")
-		for k := range cm.Children {
-			cm.display(cm.pretty(k))
-		}
-	}
-	cm.display("\n")
 }
 
-// Matches user input to correct command.
-// If the user chose an option, returns self.
-// If the user chose a child, returns appropriate child.
-// If the user chose back, returns the parent.
+func (cm *ConsoleMenu) invokePostCallback() {
+	if cm.Callbacks.PostCallback != nil {
+		cm.Callbacks.PostCallback()
+	}
+}
+
+func (cm *ConsoleMenu) deliverOptions() {
+	if len(cm.Options) > 0 {
+			cm.display("Options:")
+			for k := range cm.Options {
+				cm.display(cm.parenthesizeFirstChar(k))
+			}
+		}
+	}
+
+func (cm *ConsoleMenu) Visualize() {
+	cm.IO.O.ClearScreen()
+	cm.invokePreCallback()
+	cm.deliverHeaders()
+	cm.deliverOptions()
+	cm.newline()
+}
+
 func (cm *ConsoleMenu) Next() *ConsoleMenu {
 	if utils.Has(BACK_TOKENS, cm.choice) && cm.Parent != nil {
 		return cm.Parent
 	}
 	
-	choice := cm.match(cm.choice)
-	child, ok := cm.Children[choice]
-	if ok {
-		return child
+	choice, ok := cm.matchUserInput(cm.choice)
+	if !ok {
+		// TODO: Inform user via Error header that their choice was invalid.
+		return cm
 	}
 
 	option, ok := cm.Options[choice]
@@ -111,19 +114,9 @@ func (cm *ConsoleMenu) Next() *ConsoleMenu {
 		option()
 	}
 
-	return cm
-}
+	cm.invokePostCallback()
 
-func (cm *ConsoleMenu) initKeyToChild() {
-	numChildren := len(cm.Children)
-	keysToChildren := make(map[string]string, numChildren)
-	
-	for k := range cm.Children {
-		firstChar := string(k[0])
-		keysToChildren[firstChar] = k
-	}
-
-	cm.keyToChild = keysToChildren
+	return cm.next
 }
 
 func (cm *ConsoleMenu) initKeyToOption() {
@@ -135,28 +128,26 @@ func (cm *ConsoleMenu) initKeyToOption() {
 		keysToOptions[firstChar] = k
 	}
 
-	cm.keyToOption = keysToOptions
+	cm.charToOptionName = keysToOptions
 }
 
-// Logic to intialize necessary dictionaries for matching.
 func (cm *ConsoleMenu) Initialize() {
-	cm.initKeyToChild()
 	cm.initKeyToOption()
 }
 
 // Return a valid match if one exists.
-func (cm *ConsoleMenu) match(s string) string {
-	match, ok := cm.keyToChild[s]
-	if ok {
-		return match
+func (cm *ConsoleMenu) matchUserInput(s string) (string, bool) {
+	specifiedFullName := func(s string) bool { 
+		_, ok := cm.Options[s]
+		return ok
 	}
-
-	match, ok = cm.keyToOption[s]
-	if ok {
-		return match
+	
+	if ok := specifiedFullName(s); ok {
+		return s, ok
+	} else {
+		s, ok := cm.charToOptionName[s]
+		return s, ok
 	}
-
-	return s
 }
 
 type Menu interface {

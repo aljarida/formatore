@@ -75,7 +75,7 @@ func TestInsertRow(t *testing.T) {
 	setupTable(t, db)
 	defer dropTestTable(t, db, testTableName)
 
-	values := []string{"1", "$", "1.0", "1"}
+	values := []string{"$", "1.0", "1"}
 	err := InsertRow(db, testTableName, values)
 	if err != nil {
 		t.Fatalf("Error w/ InsertRow: ~%v~.", err)

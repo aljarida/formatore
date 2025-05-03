@@ -8,29 +8,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetResponse(t *testing.T) {
+func TestLoopUntilValidResponse(t *testing.T) {
 	expected := "VALID"
 	io := IO{
 		I: &MockInput{[]string{expected}},
 		O: &MockOutput{},
 	}
 
-	result, _ := io.GetResponse(utils.IsNotReserved, "", "")
+	result, _ := io.LoopUntilValidResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, expected, result, "Should be equal.")
 
 	io.I = &MockInput{[]string{"NULL", expected}}
-	result, _ = io.GetResponse(utils.IsNotReserved, "", "")
+	result, _ = io.LoopUntilValidResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, expected, result, "Should be equal.")
 
-	_, err := io.GetResponse(nil, "", "")
+	_, err := io.LoopUntilValidResponse(nil, "", "")
 	assert.Equal(t, ErrNeedValidator, err, "Should be equal.")
 
 	io.I = &MockInput{[]string{quitTokens[0]}}
-	_, err = io.GetResponse(utils.IsNotReserved, "", "")
+	_, err = io.LoopUntilValidResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, ErrUserQuit, err, "Should be equal.")
 	
 	io.I = &MockInput{[]string{doneTokens[0]}}
-	_, err = io.GetResponse(utils.IsNotReserved, "", "")
+	_, err = io.LoopUntilValidResponse(utils.IsNotReserved, "", "")
 	assert.Equal(t, ErrUserDone, err, "Should be equal.")
 }
 

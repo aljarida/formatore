@@ -35,7 +35,7 @@ func IsValidType(str string) bool {
 }
 
 // Determine if a string is a valid identifier.
-func IsValidIdentifer(str string) error {
+func IsValidIdentifier(str string) error {
 	if IsReserved(str) {
 		return fmt.Errorf("Must not use reserved keywords; found '%s'.", str)
 	}
@@ -71,7 +71,6 @@ func JoinWithCommasSpaces(values []string) string {
 	return builder.String()
 }
 
-// TODO: Add unit test.
 func Map[T any, R any](items []T, mapFn func(item T) R) []R {
 	res := make([]R, len(items))	
 	for i, item := range items {
@@ -80,13 +79,27 @@ func Map[T any, R any](items []T, mapFn func(item T) R) []R {
 	return res
 }
 
-// TODO: Add unit test.
 var generateUnixTime = func() int64 {
 	return time.Now().UTC().UnixNano()
 }
+
 func UnixTimestamp() string {
 	timestamp := generateUnixTime()
 	return strconv.FormatInt(timestamp, 10)
+}
+
+func IsPositiveInteger(s string) (int, bool) {
+	n, err := strconv.Atoi(s)
+	if err != nil || n <= 0 {
+		return 0, false
+	}
+	return n, true
+}
+
+func Assert(condition bool, msg string) {
+	if !condition {
+		panic(msg)
+	}
 }
 
 // Infer the type of input as either INTEGER, REAL, or TEXT. (BLOB, NULL excluded.)

@@ -16,7 +16,7 @@ func ValidateTableBlueprint(tb structs.TableBlueprint) error {
 	}
 
 	var err error
-	err = IsValidIdentifer(tb.Name)
+	err = IsValidIdentifier(tb.Name)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func ValidateTableBlueprint(tb structs.TableBlueprint) error {
 			return fmt.Errorf("Invalid column type: ~%s~.", cb.Type)
 		}
 
-		if err = IsValidIdentifer(cb.Name); err != nil {
+		if err = IsValidIdentifier(cb.Name); err != nil {
 			return fmt.Errorf("At least one erroneous column name: ~%v~.", err)
 		}
 	}

@@ -1,9 +1,7 @@
 package main
-
 import (
 	"database/sql"
 	"formatore/utils"
-	"strconv"
 	"fmt"
 	"formatore/db"
 	"formatore/enums"
@@ -18,34 +16,22 @@ var commonIO = &ui.IO{
 
 var dbase *sql.DB
 
-func mainHandleErr(err error) {
+func handleErr(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
-func MakeTable() {
+func makeTable() {
 	tb, err := ui.MakeTable(commonIO)
-	mainHandleErr(err)
+	handleErr(err)
 	err = db.CreateTable(dbase, tb)
-	mainHandleErr(err)
+	handleErr(err)
 }
-
-/* NOTE: Potential callback which could be added as a property.
-func ViewTables() {
-	names, err := db.TableNames(dbase)
-	mainHandleErr(err)
-	for _, n := range names {
-		commonIO.O.Display(n)
-	}
-	commonIO.O.Display("\n")
-}
-*/
-
 
 func getTableNames() string {
 	names, err := db.TableNames(dbase)
-	mainHandleErr(err)
+	handleErr(err)
 	var builder strings.Builder
 	for _, n := range names { 
 		builder.WriteString(fmt.Sprintf("%s\n", n))
@@ -59,7 +45,7 @@ func displayTableNames() {
 
 func addToTable() {
 	names, err := db.TableNames(dbase)
-	mainHandleErr(err)
+	handleErr(err)
 	
 	validator := func(s string) bool {
 		return utils.Has(names, s)
@@ -67,87 +53,81 @@ func addToTable() {
 
 	commonIO.O.Display(getTableNames())
 
-	tableName, err := commonIO.GetResponse(validator,
+	tableName, err := commonIO.LoopUntilValidResponse(validator,
 										   "Table name:",
 										   "Must be an existent table.")
-	mainHandleErr(err)
+	handleErr(err)
 
 	cbs, err := db.ColumnBlueprints(dbase, tableName)
-	mainHandleErr(err)
+	handleErr(err)
 	fmt.Println(cbs)
 
 	values, err := ui.GetValues(commonIO, cbs[2:])
-	mainHandleErr(err)
+	handleErr(err)
 	fmt.Println(values)
 
 	err = db.InsertRow(dbase, tableName, values)
-	mainHandleErr(err)
+	handleErr(err)
 }
 
 
 func dropAllTables() {
 	err := db.DropAllTables(dbase)
-	mainHandleErr(err)
+	handleErr(err)
 	fmt.Printf("Dropped all tables!")
-}
-
-// TODO: Move to utils. Check that this wasn't implemented already.
-func isPositiveInteger(s string) (bool, int) {
-    n, err := strconv.Atoi(s)
-    if err != nil || n <= 0 {
-        return false, 0
-    }
-    return true, n
 }
 
 func printTablePreview() {
 	names, err := db.TableNames(dbase)
-	mainHandleErr(err)
+	handleErr(err)
 	validator := func(s string) bool {
 		return utils.Has(names, s)
 	}
-	tableName, err := commonIO.GetResponse(validator,
+	tableName, err := commonIO.LoopUntilValidResponse(validator,
 										   "Table name:",
 										   "Must be an existent table")
-	mainHandleErr(err)
+	handleErr(err)
 	validator = func(s string) bool {
-		ok, _ := isPositiveInteger(s)
+		_, ok := utils.IsPositiveInteger(s)
 		return ok
 	}
-	nStr, err := commonIO.GetResponse(validator, "Number of rows:", "Must be positive integer.")
-	_, n := isPositiveInteger(nStr)
+
+	nStr, err := commonIO.LoopUntilValidResponse(validator, "Number of rows:", "Must be positive integer.")
+	n, ok := utils.IsPositiveInteger(nStr)
+	utils.Assert(ok == true, "Expected confirmation of a positive integer.")
+
 	preview, err := db.PreviewLastN(dbase, tableName, n)
-	mainHandleErr(err)
+	handleErr(err)
 	commonIO.O.Display(preview)
 }
 
-func main () {
+func main() {
 	var err error
 	dbase, err = db.ConnectToDB(enums.DBName)
-	mainHandleErr(err)
+	handleErr(err)
 	fmt.Println("Connected to database!")
 
 	var MainMenu *ui.ConsoleMenu
 
+	do := true
 	MainMenu = &ui.ConsoleMenu{
 		IO: commonIO,
-		InitialMessage: "Welcome to Formatore.",
 		Options: map[string]func() {
-			"New table": MakeTable,
+			"Create new table": makeTable,
 			"Add to table": addToTable,
 			"View tables": displayTableNames,
-			"Drop all tables!": dropAllTables,
-			"Preview tables!": printTablePreview,
+			"Drop all tables": dropAllTables,
+			"Preview tables": printTablePreview,
+			"Quit application" : func () { do = false },
 		},
 	}
 
 	MainMenu.Initialize()
-	fmt.Println("Initialized main menu!")
 
 	var menu *ui.ConsoleMenu
 	menu = MainMenu
 
-	for {
+	for do {
 		menu.Visualize()
 		menu.Input()
 		next := menu.Next()

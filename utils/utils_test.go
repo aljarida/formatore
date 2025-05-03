@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"time"
 	"testing"
 	"formatore/enums"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestJoinStrings (t *testing.T) {
@@ -59,14 +61,14 @@ func TestIsValidType(t *testing.T) {
 func TestIsValidIdentifer(t *testing.T) {
 	invalidIdentifers := []string{"1name", "join", "join$"}
 	for _, str := range invalidIdentifers {
-		if IsValidIdentifer(str) == nil {
+		if IsValidIdentifier(str) == nil {
 			t.Fatal()
 		}
 	}
 
 	validIdentifiers := []string{"name1", "NAME1", "name_join"}
 	for _, str := range validIdentifiers {
-		if IsValidIdentifer(str) != nil {
+		if IsValidIdentifier(str) != nil {
 			t.Fatal()
 		}
 	}
@@ -126,4 +128,27 @@ func TestInferType(t *testing.T) {
 			t.Fatalf("Expected %s but inferred %s from '%s'.", expected[i], res, values[i])
 		}
 	}
+}
+
+func TestMap(t *testing.T) {
+	addOne := func(i int) int { return i + 1 }
+
+	arr1 := []int{1,2,3,4,5}
+	expected1 := []int{2,3,4,5,6}
+	actual1 := Map(arr1, addOne)
+	assert.Equal(t, expected1, actual1, "Should be equal.")
+
+	arr2 := []int{}	
+	expected2 := []int{}
+	actual2 := Map(arr2, addOne)
+	assert.Equal(t, expected2, actual2, "Should be equal.")
+}
+
+func TestTime(t *testing.T) {
+	start := time.Now().UTC().UnixNano()
+	got := generateUnixTime()
+	end := time.Now().UTC().UnixNano()
+
+	assert.Greater(t, got, start, "Expected acquired time to be greater than start time.")
+	assert.Greater(t, end, got, "Expected end time to be greater than acquired time.")
 }

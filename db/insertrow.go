@@ -22,7 +22,7 @@ func extractColumnNames(cbs []structs.ColumnBlueprint) []string {
 	mapFn := func(cb structs.ColumnBlueprint) string {
 		return cb.Name
 	}
-	return utils.Apply(cbs, mapFn)
+	return utils.Map(cbs, mapFn)
 }
 
 func extractColumnNamesModuloID(cbs []structs.ColumnBlueprint) ([]string, error) {
