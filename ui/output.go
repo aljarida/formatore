@@ -13,7 +13,7 @@ type OutputDisplay interface {
 // Console output implementation
 type FmtOutput struct{}
 func (o *FmtOutput) Display(s string) {
-	fmt.Println(s)
+	fmt.Print(s)
 }
 
 func (o *FmtOutput) ClearScreen() {

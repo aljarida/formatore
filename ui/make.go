@@ -6,13 +6,19 @@ import (
 	"formatore/utils"
 )
 
-func MakeTable(io *IO) (structs.TableBlueprint, error) {
-	tableName, err := io.LoopUntilValidResponse(utils.IsNotReserved, "Table name:", "Invalid table name.")
+func MakeTable(cm *ConsoleMenu) (structs.TableBlueprint, error) {
+	tableName, err := cm.LoopUntilValidResponse(
+		utils.IsNotReserved,
+		cmHeaders{
+			Guidance: "Table name:",
+			Error: "Invalid table name."},
+		)
+
 	if err != nil {
 		return structs.TableBlueprint{}, err
 	}
 	
-	questions, err := getQuestions(io)
+	questions, err := cm.getQuestions()
 	if err == ErrUserQuit { 
 		return structs.TableBlueprint{}, err	
 	} else if err != nil {

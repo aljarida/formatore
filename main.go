@@ -1,12 +1,13 @@
 package main
 import (
 	"database/sql"
+	"formatore/ui"
+	/*
 	"formatore/utils"
 	"fmt"
 	"formatore/db"
-	"formatore/enums"
-	"formatore/ui"
 	"strings"
+	*/
 )
 
 var commonIO = &ui.IO{
@@ -22,6 +23,8 @@ func handleErr(err error) {
 	}
 }
 
+/*
+NOTE: Preserved for reference. Must be refactored, cleaned up.
 func makeTable() {
 	tb, err := ui.MakeTable(commonIO)
 	handleErr(err)
@@ -124,14 +127,40 @@ func main() {
 
 	MainMenu.Initialize()
 
-	var menu *ui.ConsoleMenu
-	menu = MainMenu
+	settingsMenu := &ui.ConsoleMenu{
+		IO: commonIO,
+		Headers: ui.Headers{
+			Title: "Header Menu",
+		},
+	}
 
-	for do {
+	var menu *ui.ConsoleMenu
+	menu = &ui.ConsoleMenu{
+		PreCallback: func() { 
+			commonIO.O.Display("PreCallback Working!") 
+		},
+		Headers: ui.Headers{
+			Title: "Main v1",
+			Guidance: "Quit terminal to quit!",
+			Error: "ERROR: Preview build.",
+		},
+		Options: map[string]func() {
+			"Settings": func() {
+				menu.SetNext(settingsMenu)
+			},
+		},
+	}
+	menu.Initialize()
+
+	for {
 		menu.Visualize()
 		menu.Input()
 		next := menu.Next()
-		next.Parent = menu
+		if next != menu {
+			next.Parent = menu
+		}
 		menu = next
 	}
+
 }
+*/

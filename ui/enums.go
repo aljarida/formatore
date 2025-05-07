@@ -7,8 +7,10 @@ import (
 // TODO: Move these into enums.
 const ansiEscapeCode = "\033[H\033[J"
 
-var quitTokens = []string{"q"}
-var doneTokens = []string{"d"}
+var QUIT_TOKENS = []string{"q", "quit"}
+var DONE_TOKENS = []string{"d", "done"}
+
+var BACK_TOKENS = []string{"b", "back"}
 
 var ErrUserQuit = errors.New("User quit.")
 var ErrUserDone = errors.New("User done.")

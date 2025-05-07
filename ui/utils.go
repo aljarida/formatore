@@ -7,11 +7,11 @@ import (
 )
 
 func isQuit(s string) bool {
-	return utils.Has(quitTokens, s)
+	return utils.Has(QUIT_TOKENS, s)
 }
 
 func isDone(s string) bool {
-	return utils.Has(doneTokens, s)
+	return utils.Has(DONE_TOKENS, s)
 }
 
 func prettyColumnNameAsQuestion(s string) string {

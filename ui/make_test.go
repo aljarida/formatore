@@ -13,7 +13,7 @@ func TestMakeTable(t *testing.T) {
 	t1 := enums.Text
 	q2 := "q2"
 	t2 := enums.Text
-	input := []string{tableName, q1, t1, q2, t2, doneTokens[0]}
+	input := []string{tableName, q1, t1, q2, t2, DONE_TOKENS[0]}
 	io := &IO{
 		I: &MockInput{input},
 		O: &MockOutput{},
