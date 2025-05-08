@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"formatore/utils"
 )
 
@@ -22,8 +23,8 @@ func (cm *ConsoleMenu) Read() (string, error) {
 	return cm.io.I.Read()
 }
 
-// Obtains user's next choice and stores it.
-func (cm *ConsoleMenu) Input() {
+// Obtains user's next choice and stores it in cm.choice.
+func (cm *ConsoleMenu) Input() ResponseStatus {
 	isValid := func(s string) bool {
 		_, optionFullExists := cm.options[s]
 		_, optionAbbrevExists := cm.charsToOptionNames[s]
@@ -35,12 +36,17 @@ func (cm *ConsoleMenu) Input() {
 		cmHeaders{
 			Guidance: "Action:",
 			Error: "Please choose from the available options.",
-		})
+		},
+	)
 
-	if err != nil {
-		// TODO: Determine error here.
-		return
-	} else {
-		cm.choice = response
+	utils.Assert(
+		err == nil, 
+		fmt.Sprintf("LoopUntilValidResponse returned an unexpected error: ~%v~.", err),
+	)
+
+	if response.Okay() {
+		cm.choice = response.content
 	}
+
+	return response.status
 }

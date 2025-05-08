@@ -51,6 +51,29 @@ func (cm *ConsoleMenu) renderEach(printerFns ...func()) {
 	cm.newline()
 }
 
+func (cm *ConsoleMenu) substituteNonEmptyHeaders(hs cmHeaders) {
+	const emptyString string = ""
+	if hs.Title != emptyString {
+		cm.SetHeaderTitle(hs.Title)
+	}
+	if hs.Guidance != emptyString {
+		cm.SetHeaderGuidance(hs.Guidance)
+	}
+	if hs.Error  != emptyString {
+		cm.SetHeaderError(hs.Error)
+	}
+	if hs.Controls != emptyString {
+		cm.SetHeaderControls(hs.Controls)
+	}
+}
+
+// TODO: Does a menu which actively updates its headers need the option to not display its options?
+// TODO: Can the be reworded so it's less verbose?
+func (cm *ConsoleMenu) SubstituteAndRerenderOnlyHeaders (hs cmHeaders) {
+	cm.substituteNonEmptyHeaders(hs)
+	cm.RenderOnlyHeaders()
+}
+
 func (cm *ConsoleMenu) RenderOnlyHeaders() {
 	cm.renderEach(cm.headersPrinterFn)
 }

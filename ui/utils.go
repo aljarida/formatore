@@ -6,6 +6,8 @@ import (
 	"unicode"
 )
 
+// TODO: Consider moving into global utils.
+
 func isQuit(s string) bool {
 	return utils.Has(QUIT_TOKENS, s)
 }

@@ -1,15 +1,13 @@
 package ui
 
 import (
+	"formatore/utils"
 	"strings"
 )
 
-// TODO: Determine where these BACK_TOKENS should go. Utils?
-var BACK_TOKENS = []string{"b", "back"}
-
 type Menu interface {
 	Render() 
-	Input()
+	Input() ResponseStatus
 	Next() *Menu
 }
 
@@ -28,12 +26,12 @@ type ConsoleMenu struct {
 	choice string // Stores user response after obtaining input.
 	charsToOptionNames map[string]string // Example: 'q' -> "quit" => options["quit"] -> quitFn().
 
-	next *ConsoleMenu // Link to any next menu or self.
-	parent *ConsoleMenu // Link to prior menu.
+	next, parent *ConsoleMenu // Links to prior menu and next menu.
 }
 
 func InitConsoleMenu(cm *ConsoleMenu) *ConsoleMenu {
 	cm.initCharsToOptionNames()
+	utils.Assert(cm.io != nil, "IO must not be nil!")
 	return cm
 }
 

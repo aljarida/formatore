@@ -8,7 +8,7 @@ func (cm *ConsoleMenu) SetParent(parent *ConsoleMenu) {
 	cm.parent = parent
 }
 
-func (cm *ConsoleMenu) SetHeaders(hs Headers) {
+func (cm *ConsoleMenu) SetHeaders(hs cmHeaders) {
 	cm.headers = hs
 }
 

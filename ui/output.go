@@ -17,7 +17,7 @@ func (o *FmtOutput) Display(s string) {
 }
 
 func (o *FmtOutput) ClearScreen() {
-	fmt.Print(ansiEscapeCode)
+	fmt.Print(ANSI_ESCAPE_CODE)
 }
 
 func (o *FmtOutput) ClearThenDisplay(s string) {
