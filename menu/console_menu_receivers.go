@@ -1,64 +1,10 @@
-package ui
+package menu
 
 import (
 	"formatore/utils"
 	"formatore/structs"
 	"fmt"
 )
-
-type IO struct {
-	I InputReader
-	O OutputDisplay
-}
-
-type ResponseStatus int
-
-const (
-	InputOkay ResponseStatus = iota
-	InputDone
-	InputQuit
-	InputUserError
-)
-
-type Response struct {
-	status ResponseStatus
-}
-
-func (r Response) Okay() bool {
-	return r.status == InputOkay
-}
-
-func (r Response) Done() bool {
-	return r.status == InputDone
-}
-
-func (r Response) Quit() bool {
-	return r.status == InputQuit
-}
-
-func (r Response) UserError() bool {
-	return r.status == InputUserError
-}
-
-type StringResponse struct {
-	content string
-	Response
-}
-
-type ColumnBlueprintResponse struct {
-	content structs.ColumnBlueprint
-	Response
-}
-
-type ColumnBlueprintsResponse struct {
-	content []structs.ColumnBlueprint
-	Response
-}
-
-type StringArrayResponse struct {
-	content []string
-	Response
-}
 
 func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (StringArrayResponse, error) {
 	strArrRes := StringArrayResponse{}
@@ -92,39 +38,6 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (StringArrayResp
 	strArrRes.content = values	
 	strArrRes.status = InputOkay
 	return strArrRes, nil
-}
-
-func (cm *ConsoleMenu) LoopUntilValidResponse(
-		validator func(string) bool,
-		hs cmHeaders) (StringResponse, error) {
-	res := StringResponse{}
-	if validator == nil {
-		return res, ErrNeedValidator
-	}
-
-	cm.SubstituteAndRerenderOnlyHeaders(cmHeaders{Guidance: hs.Guidance})
-	for {
-		input, err := cm.Read()
-		if err != nil {
-			return res, err
-		}	
-
-		validInput := validator(input)
-		if !validInput {
-			cm.SubstituteAndRerenderOnlyHeaders(cmHeaders{Error: hs.Error})
-			continue
-		} else if isDone(input) { // In the event this (looping) function is called in a loop.
-			res.status = InputDone
-			return res, nil
-		} else if isQuit(input) { // In the event user wishes to cancel behavior.
-			res.status = InputQuit
-			return res, nil
-		} else {
-			res.status = InputOkay
-			res.content = input
-			return res, nil
-		}
-	}
 }
 
 // TODO: Can this function be broken up to be more DRY?
@@ -168,7 +81,7 @@ func (cm *ConsoleMenu) getQuestion() (ColumnBlueprintResponse, error) {
 	return cbRes, nil
 }
 
-func (cm *ConsoleMenu) getQuestions() (ColumnBlueprintsResponse, error) {
+func (cm *ConsoleMenu) GetQuestions() (ColumnBlueprintsResponse, error) {
 	cbsRes := ColumnBlueprintsResponse{}
 
 	questions := []structs.ColumnBlueprint{}

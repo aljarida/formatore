@@ -1,4 +1,4 @@
-package ui
+package menu
 
 func (cm *ConsoleMenu) display(s string) {
 	cm.io.O.Display(s)

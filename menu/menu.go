@@ -1,7 +1,8 @@
-package ui
+package menu
 
 import (
 	"formatore/utils"
+	"formatore/io"
 	"strings"
 )
 
@@ -18,11 +19,15 @@ type cmHeaders struct {
 	Error string
 }
 
+func (cm *ConsoleMenu) Read() (string, error) {
+	return cm.io.I.Read()
+}
+
 type ConsoleMenu struct {
 	headers cmHeaders // UI textual displays, called on each Render().
 	options map[string]func() // Functions which may be called.
 
-	io *IO // IO for obtaining and sending messages.
+	io *io.IO // IO for obtaining and sending messages.
 	choice string // Stores user response after obtaining input.
 	charsToOptionNames map[string]string // Example: 'q' -> "quit" => options["quit"] -> quitFn().
 

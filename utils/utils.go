@@ -123,3 +123,46 @@ func Has(arr []string, s string) bool {
 	}
 	return false
 }
+
+// TODO: Add unit test.
+func ParenthesizeFirstChar(s string) string {
+	if s == "" {
+		return s
+	}
+
+	var b strings.Builder
+	b.Grow(len(s) + 2) 
+	b.WriteRune('(')
+	b.WriteRune(rune(s[0]))
+	b.WriteRune(')')
+	if len(s) > 1 {
+		b.WriteString(s[1:])
+	}
+
+	return b.String()
+}
+
+// TODO: Add unit test.
+func PrettyColumnNameAsQuestion(s string) string {
+	var b strings.Builder
+	b.Grow(len(s) + len("[?]"))
+
+	first := true
+	for _, r := range s {
+		switch r {
+		case '_':
+			b.WriteRune(' ')
+		default:
+			if first {
+				b.WriteRune(unicode.ToUpper(r))
+				first = false
+			} else {
+				b.WriteRune(r)
+			}
+		}
+	}
+
+	b.WriteString("[?]")
+	return b.String()
+}
+
