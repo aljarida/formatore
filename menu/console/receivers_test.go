@@ -85,9 +85,7 @@ func TestGetQuestions(t *testing.T) {
 	// Test set 3:	
 	input = []string{q1, t1, enums.QUIT_TOKENS[0]}
 	setInputData(t, cm, input)
-	t.Log(cm.io.I.(*io.MockInput).Data)
 	res, err = cm.GetQuestions()
-	t.Log(cm.io.O.(*io.MockOutput).Data)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputQuit, res.Status, "Should be equal.")
 }

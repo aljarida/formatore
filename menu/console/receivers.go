@@ -5,7 +5,6 @@ import (
 	"formatore/structs"
 	"formatore/io"
 	"fmt"
-	"log"
 )
 
 func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayResponse, error) {
@@ -80,7 +79,6 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	}
 	cbRes.Status = io.InputOkay
 
-	log.Print("Question successfully made!")
 	return cbRes, nil
 }
 
