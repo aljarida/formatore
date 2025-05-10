@@ -6,7 +6,7 @@ import (
 	"formatore/io"
 )
 
-func MakeTable(cm *ConsoleMenu) (io.TableBlueprintResponse, error) {
+func (cm *ConsoleMenu) MakeTableBlueprint() (io.TableBlueprintResponse, error) {
 	tbRes := io.TableBlueprintResponse{}
 	tableNameRes, err := cm.LoopUntilValidResponse(
 		utils.IsNotReserved,

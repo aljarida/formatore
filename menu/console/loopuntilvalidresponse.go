@@ -1,10 +1,11 @@
 package consolemenu
 
 import (
-	"formatore/io"
 	"formatore/errors"
+	"formatore/io"
 )
 
+const errorThreshold int = 100
 
 // NOTE: Function only returns content with InputDone.
 func (cm *ConsoleMenu) LoopUntilValidResponse(
@@ -16,8 +17,10 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 
 	cm.SubstituteAndRerenderOnlyHeaders(cmHeaders{Guidance: hs.Guidance})
 
+	counter := 0
 	res := io.StringResponse{}
 	for {
+
 		input, err := cm.Read()
 		if err != nil {
 			return res, err
@@ -26,7 +29,12 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 		validInput := validator(input)
 		if !validInput {
 			cm.SubstituteAndRerenderOnlyHeaders(cmHeaders{Error: hs.Error})
-			continue
+			counter += 1
+			if counter > errorThreshold {
+				return res, errors.ErrTooManyInvalidResponses
+			} else {
+				continue
+			}
 		} else if io.InputIsDone(input) { // In the event this (looping) function is called in a loop.
 			res.Status = io.InputDone
 			return res, nil

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMakeTable(t *testing.T) {
+func TestMakeTableBlueprint(t *testing.T) {
 	tableName := "tableName"
 	q1 := "q1"
 	t1 := enums.Text
