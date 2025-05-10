@@ -26,16 +26,19 @@ func (r *FmtInput) Read() (string, error) {
 
 // Mock implementation
 type MockInput struct{
-	data []string
+	Data []string
 }
 
 func (m *MockInput) Read() (string, error) {
-	if len(m.data) == 0 {
+	if len(m.Data) == 0 {
 		return "", nil
 	} else {
-		res := m.data[0]
-		m.data = m.data[1:]
+		res := m.Data[0]
+		m.Data = m.Data[1:]
 		return res, nil
 	}
 }
 
+func (m *MockInput) SetData(s []string) {
+	m.Data = s	
+}

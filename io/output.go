@@ -1,6 +1,7 @@
 package io
 
 import (
+	"formatore/enums"
 	"fmt"
 )
 
@@ -17,7 +18,7 @@ func (o *FmtOutput) Display(s string) {
 }
 
 func (o *FmtOutput) ClearScreen() {
-	fmt.Print(ANSI_ESCAPE_CODE)
+	fmt.Print(enums.ANSI_ESCAPE_CODE)
 }
 
 func (o *FmtOutput) ClearThenDisplay(s string) {
@@ -26,9 +27,18 @@ func (o *FmtOutput) ClearThenDisplay(s string) {
 }
 
 // Mock output implementation
-type MockOutput struct {}
-func (m *MockOutput) Display(_ string) {}
+type MockOutput struct {
+	Data []string
+}
+func (m *MockOutput) Display(s string) {
+	m.Data = append(m.Data, s)
+}
 
-func (m *MockOutput) ClearScreen() {}
+func (m *MockOutput) ClearScreen() {
+	m.Data = []string{}
+}
 
-func (m *MockOutput) ClearThenDisplay(_ string) {}
+func (m *MockOutput) ClearThenDisplay(s string) {
+	m.ClearScreen()
+	m.Display(s)
+}

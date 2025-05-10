@@ -1,13 +1,14 @@
-package menu
+package consolemenu
 
 import (
 	"formatore/utils"
 	"formatore/structs"
+	"formatore/io"
 	"fmt"
 )
 
-func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (StringArrayResponse, error) {
-	strArrRes := StringArrayResponse{}
+func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayResponse, error) {
+	strArrRes := io.StringArrayResponse{}
 
 	values := []string{}
 	for i, cb := range cbs {
@@ -16,7 +17,7 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (StringArrayResp
 		}
 
 		headers := cmHeaders{
-			Guidance: fmt.Sprintf("%d. %s (%s):", i, prettyColumnNameAsQuestion(cb.Name), cb.Type),
+			Guidance: fmt.Sprintf("%d. %s (%s):", i, utils.PrettyColumnNameAsQuestion(cb.Name), cb.Type),
 			Error: "Answer must match type.",
 		}
 
@@ -24,25 +25,25 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (StringArrayResp
 		if err != nil {
 			return strArrRes, err
 		} else if strRes.Quit() {
-			strArrRes.status = InputQuit
+			strArrRes.Status = io.InputQuit
 			return strArrRes, nil
 		} else if strRes.Done() || strRes.UserError() { // User can not prematurely indicate "Done".
-			strArrRes.status = InputUserError
+			strArrRes.Status = io.InputUserError
 			return strArrRes, nil
 		} else {
-			values = append(values, strRes.content)
+			values = append(values, strRes.Content)
 			continue
 		}
 	}
 
-	strArrRes.content = values	
-	strArrRes.status = InputOkay
+	strArrRes.Content = values	
+	strArrRes.Status = io.InputOkay
 	return strArrRes, nil
 }
 
 // TODO: Can this function be broken up to be more DRY?
-func (cm *ConsoleMenu) getQuestion() (ColumnBlueprintResponse, error) {
-	cbRes := ColumnBlueprintResponse{}
+func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
+	cbRes := io.ColumnBlueprintResponse{}
 
 	qTextResponse, err := cm.LoopUntilValidResponse(
 		utils.IsNotReserved,
@@ -52,7 +53,7 @@ func (cm *ConsoleMenu) getQuestion() (ColumnBlueprintResponse, error) {
 		})
 
 	if qTextResponse.Done() || qTextResponse.Quit() {
-		cbRes.status = qTextResponse.status
+		cbRes.Status = qTextResponse.Status
 		return cbRes, nil
 	} else if err != nil {
 		return cbRes, err
@@ -66,40 +67,40 @@ func (cm *ConsoleMenu) getQuestion() (ColumnBlueprintResponse, error) {
 		})
 
 	if qTypeResponse.Done() || qTextResponse.Quit() {
-		cbRes.status = qTypeResponse.status
+		cbRes.Status = qTypeResponse.Status
 		return cbRes, nil
 	} else if err != nil {
 		return cbRes, err
 	}
 
-	cbRes.content = structs.ColumnBlueprint{
-		Name: qTextResponse.content,
-		Type: qTypeResponse.content,
+	cbRes.Content = structs.ColumnBlueprint{
+		Name: qTextResponse.Content,
+		Type: qTypeResponse.Content,
 	}
-	cbRes.status = InputOkay
+	cbRes.Status = io.InputOkay
 
 	return cbRes, nil
 }
 
-func (cm *ConsoleMenu) GetQuestions() (ColumnBlueprintsResponse, error) {
-	cbsRes := ColumnBlueprintsResponse{}
+func (cm *ConsoleMenu) GetQuestions() (io.ColumnBlueprintsResponse, error) {
+	cbsRes := io.ColumnBlueprintsResponse{}
 
 	questions := []structs.ColumnBlueprint{}
 	for {
 		cbRes, err := cm.getQuestion()
 		if cbRes.Done() && len(questions) > 0 {
-			cbsRes.status = InputOkay
+			cbsRes.Status = io.InputOkay
  			return cbsRes, nil
 		} else if cbRes.Done() && len(questions) == 0 {
-			cbsRes.status = InputUserError
-			return cbsRes, nil
+			cbsRes.Status = io.InputUserError
+			return io.ColumnBlueprintsResponse{}, nil
 		} else if cbsRes.Quit() {
-			cbsRes.status = InputQuit
-			return cbsRes, nil
+			cbsRes.Status = io.InputQuit
+			return io.ColumnBlueprintsResponse{}, nil
 		} else if err != nil {
-			return cbsRes, err
+			return io.ColumnBlueprintsResponse{}, err
 		} else {
-			questions = append(questions, cbRes.content)
+			questions = append(questions, cbRes.Content)
 			continue
 		}
 	}

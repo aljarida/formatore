@@ -1,4 +1,4 @@
-package menu
+package consolemenu
 
 func (cm *ConsoleMenu) SetNext(next *ConsoleMenu) {
 	cm.next = next

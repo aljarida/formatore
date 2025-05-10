@@ -1,4 +1,4 @@
-package menu
+package consolemenu
 
 import (
 	"formatore/utils"

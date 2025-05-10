@@ -1,4 +1,8 @@
-package menu
+package consolemenu
+
+import (
+	"formatore/utils"
+)
 
 func (cm *ConsoleMenu) display(s string) {
 	cm.io.O.Display(s)
@@ -36,7 +40,7 @@ func (cm *ConsoleMenu) optionsPrinterFn() {
 	if len(cm.options) > 0 {
 		cm.display("Options:")
 		for k := range cm.options {
-			cm.display(cm.parenthesizeFirstChar(k))
+			cm.display(utils.ParenthesizeFirstChar(k))
 		}
 	}
 }

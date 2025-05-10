@@ -1,4 +1,4 @@
-package menu
+package io
 
 import (
 	"formatore/structs"
@@ -16,53 +16,58 @@ const (
 )
 
 type Response struct {
-	status ResponseStatus
+	Status ResponseStatus
 }
 
 func (r Response) Okay() bool {
-	return r.status == InputOkay
+	return r.Status == InputOkay
 }
 
 func (r Response) Done() bool {
-	return r.status == InputDone
+	return r.Status == InputDone
 }
 
 func (r Response) Quit() bool {
-	return r.status == InputQuit
+	return r.Status == InputQuit
 }
 
 func (r Response) UserError() bool {
-	return r.status == InputUserError
+	return r.Status == InputUserError
 }
 
 type StringResponse struct {
-	content string
+	Content string
+	Response
+}
+
+type TableBlueprintResponse struct {
+	Content structs.TableBlueprint
 	Response
 }
 
 type ColumnBlueprintResponse struct {
-	content structs.ColumnBlueprint
+	Content structs.ColumnBlueprint
 	Response
 }
 
 type ColumnBlueprintsResponse struct {
-	content []structs.ColumnBlueprint
+	Content []structs.ColumnBlueprint
 	Response
 }
 
 type StringArrayResponse struct {
-	content []string
+	Content []string
 	Response
 }
 
-func inputIsQuit(s string) bool {
+func InputIsQuit(s string) bool {
 	return utils.Has(enums.QUIT_TOKENS, s)
 }
 
-func inputIsDone(s string) bool {
+func InputIsDone(s string) bool {
 	return utils.Has(enums.DONE_TOKENS, s)
 }
 
-func inputIsBack(s string) bool {
+func InputIsBack(s string) bool {
 	return utils.Has(enums.BACK_TOKENS, s)
 }
