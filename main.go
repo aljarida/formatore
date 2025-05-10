@@ -1,13 +1,12 @@
 package main
+/*j
 import (
 	"database/sql"
 	"formatore/ui"
-	/*
 	"formatore/utils"
 	"fmt"
 	"formatore/db"
 	"strings"
-	*/
 )
 
 var commonIO = &ui.IO{
@@ -23,7 +22,6 @@ func handleErr(err error) {
 	}
 }
 
-/*
 NOTE: Preserved for reference. Must be refactored, cleaned up.
 func makeTable() {
 	tb, err := ui.MakeTable(commonIO)

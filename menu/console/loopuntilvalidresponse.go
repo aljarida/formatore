@@ -20,14 +20,19 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 	counter := 0
 	res := io.StringResponse{}
 	for {
-
 		input, err := cm.Read()
 		if err != nil {
 			return res, err
 		}	
 
 		validInput := validator(input)
-		if !validInput {
+		if io.InputIsDone(input) { // In the event this (looping) function is called in a loop.
+			res.Status = io.InputDone
+			return res, nil
+		} else if io.InputIsQuit(input) { // In the event user wishes to cancel behavior.
+			res.Status = io.InputQuit
+			return res, nil
+		} else if !validInput {
 			cm.SubstituteAndRerenderOnlyHeaders(cmHeaders{Error: hs.Error})
 			counter += 1
 			if counter > errorThreshold {
@@ -35,12 +40,6 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 			} else {
 				continue
 			}
-		} else if io.InputIsDone(input) { // In the event this (looping) function is called in a loop.
-			res.Status = io.InputDone
-			return res, nil
-		} else if io.InputIsQuit(input) { // In the event user wishes to cancel behavior.
-			res.Status = io.InputQuit
-			return res, nil
 		} else {
 			res.Status = io.InputOkay
 			res.Content = input

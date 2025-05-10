@@ -80,12 +80,14 @@ func TestGetQuestions(t *testing.T) {
 	setInputData(t, cm, []string{enums.DONE_TOKENS[0]})
 	res, err = cm.GetQuestions()
 	assert.NoError(t, err, "Should not error.")
-	assert.Equal(t, io.InputDone, res.Status, "Should be equal.")
+	assert.Equal(t, io.InputUserError, res.Status, "Should be equal.")
 	
 	// Test set 3:	
-	input = []string{q1, t2, enums.QUIT_TOKENS[0]}
+	input = []string{q1, t1, enums.QUIT_TOKENS[0]}
 	setInputData(t, cm, input)
+	t.Log(cm.io.I.(*io.MockInput).Data)
 	res, err = cm.GetQuestions()
+	t.Log(cm.io.O.(*io.MockOutput).Data)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputQuit, res.Status, "Should be equal.")
 }

@@ -5,6 +5,7 @@ import (
 	"formatore/structs"
 	"formatore/io"
 	"fmt"
+	"log"
 )
 
 func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayResponse, error) {
@@ -23,7 +24,7 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 
 		strRes, err := cm.LoopUntilValidResponse(valdator, headers)
 		if err != nil {
-			return strArrRes, err
+			return io.StringArrayResponse{}, err
 		} else if strRes.Quit() {
 			strArrRes.Status = io.InputQuit
 			return strArrRes, nil
@@ -79,6 +80,7 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	}
 	cbRes.Status = io.InputOkay
 
+	log.Print("Question successfully made!")
 	return cbRes, nil
 }
 
@@ -87,20 +89,21 @@ func (cm *ConsoleMenu) GetQuestions() (io.ColumnBlueprintsResponse, error) {
 
 	questions := []structs.ColumnBlueprint{}
 	for {
-		cbRes, err := cm.getQuestion()
-		if cbRes.Done() && len(questions) > 0 {
+		questionRes, err := cm.getQuestion()
+		if questionRes.Done() && len(questions) > 0 {
 			cbsRes.Status = io.InputOkay
+			cbsRes.Content = questions
  			return cbsRes, nil
-		} else if cbRes.Done() && len(questions) == 0 {
+		} else if questionRes.Done() && len(questions) == 0 {
 			cbsRes.Status = io.InputUserError
-			return io.ColumnBlueprintsResponse{}, nil
-		} else if cbsRes.Quit() {
+			return cbsRes, nil
+		} else if questionRes.Quit() {
 			cbsRes.Status = io.InputQuit
-			return io.ColumnBlueprintsResponse{}, nil
+			return cbsRes, nil
 		} else if err != nil {
 			return io.ColumnBlueprintsResponse{}, err
 		} else {
-			questions = append(questions, cbRes.Content)
+			questions = append(questions, questionRes.Content)
 			continue
 		}
 	}

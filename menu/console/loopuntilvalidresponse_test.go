@@ -9,10 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSanityCheck(t *testing.T) {
-    assert.True(t, true, "Sanity check should pass")
-}
-
 func TestLoopUntilValidResponse(t *testing.T) {
 	expected := "VALID"
 	mockIO := io.IO{
