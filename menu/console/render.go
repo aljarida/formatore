@@ -31,7 +31,7 @@ func (cm *ConsoleMenu) headersPrinterFn() {
 	if cm.headers.Controls != "" {
 		cm.Displayln(cm.headers.Controls)
 	}
-	if cm.headers.Error != "" {
+	if cm.headers.Error != "" && cm.errorState {
 		cm.Displayln(cm.headers.Error)
 	}
 }
@@ -57,31 +57,12 @@ func (cm *ConsoleMenu) renderEach(printerFns ...func()) {
 	}
 }
 
-func (cm *ConsoleMenu) substituteNonEmptyHeaders(hs CMHeaders) {
-	const emptyString string = ""
-	if hs.Title != emptyString {
-		cm.SetHeaderTitle(hs.Title)
+func (cm *ConsoleMenu) bodyPrinterFn() {
+	if cm.body != "" {
+		cm.Displayln(cm.body)
 	}
-	if hs.Guidance != emptyString {
-		cm.SetHeaderGuidance(hs.Guidance)
-	}
-	if hs.Error  != emptyString {
-		cm.SetHeaderError(hs.Error)
-	}
-	if hs.Controls != emptyString {
-		cm.SetHeaderControls(hs.Controls)
-	}
-}
-
-func (cm *ConsoleMenu) SubstituteHeadersAndRerender(hs CMHeaders) {
-	cm.substituteNonEmptyHeaders(hs)
-	cm.Render()
-}
-
-func (cm *ConsoleMenu) RenderOnlyHeaders() {
-	cm.renderEach(cm.headersPrinterFn)
 }
 
 func (cm *ConsoleMenu) Render() {
-	cm.renderEach(cm.headersPrinterFn, cm.optionsPrinterFn)
+	cm.renderEach(cm.headersPrinterFn, cm.optionsPrinterFn, cm.bodyPrinterFn)
 }

@@ -8,7 +8,7 @@ import (
 
 func (cm *ConsoleMenu) MakeTableBlueprint() (io.TableBlueprintResponse, error) {
 	tbRes := io.TableBlueprintResponse{}
-	tableNameRes, err := cm.LoopUntilValidResponse(
+	tableNameRes, err := cm.StringResponseViaNewMenu(
 		utils.IsNotReserved,
 		CMHeaders{
 			Guidance: "Table name:",

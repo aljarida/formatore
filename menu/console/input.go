@@ -22,25 +22,23 @@ func (cm *ConsoleMenu) matchUserInput(s string) (string, bool) {
 
 
 // Obtains user's next choice and stores it in cm.choice.
+// NOTE: This function affects the choice for the next option.
 func (cm *ConsoleMenu) Input() io.ResponseStatus {
 	isValid := func(s string) bool {
 		_, optionFullExists := cm.options[s]
 		_, optionAbbrevExists := cm.charsToOptionNames[s]
 		// TODO: Strange that "InputIsBack" only appears here.
-		return optionFullExists || optionAbbrevExists || io.InputIsBack(s)
+		return optionFullExists || optionAbbrevExists 
 	}
 
-	response, err := cm.LoopUntilValidResponse(
+	response, err := cm.loopUntilValidResponse(
 		isValid, 
-		CMHeaders{
-			Guidance: "Please choose an action.",
-			Error: "ERROR: Action must match available options.",
-		},
+		cm.headers,
 	)
 
 	utils.Assert(
 		err == nil, 
-		fmt.Sprintf("LoopUntilValidResponse returned an unexpected error: ~%v~.", err),
+		fmt.Sprintf("GetStringResponse returned an unexpected error: ~%v~.", err),
 	)
 
 	if response.Okay() {

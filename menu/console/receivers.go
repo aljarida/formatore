@@ -21,7 +21,7 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 			Error: "Answer must match type.",
 		}
 
-		strRes, err := cm.LoopUntilValidResponse(valdator, headers)
+		strRes, err := cm.StringResponseViaNewMenu(valdator, headers)
 		if err != nil {
 			return io.StringArrayResponse{}, err
 		} else if strRes.Quit() {
@@ -36,7 +36,7 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 		}
 	}
 
-	strArrRes.Content = values	
+	strArrRes.Content = values
 	strArrRes.Status = io.InputOkay
 	return strArrRes, nil
 }
@@ -45,7 +45,7 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	cbRes := io.ColumnBlueprintResponse{}
 
-	qTextResponse, err := cm.LoopUntilValidResponse(
+	qTextResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsNotReserved,
 		CMHeaders{
 			Guidance: "Question:",
@@ -59,7 +59,7 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 		return cbRes, err
 	}
 
-	qTypeResponse, err := cm.LoopUntilValidResponse(
+	qTypeResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsValidType,
 		CMHeaders{
 			Guidance: "Type:",

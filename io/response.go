@@ -13,6 +13,7 @@ const (
 	InputDone
 	InputQuit
 	InputUserError
+	InputBack
 )
 
 type Response struct {
@@ -33,6 +34,10 @@ func (r Response) Quit() bool {
 
 func (r Response) UserError() bool {
 	return r.Status == InputUserError
+}
+
+func (r Response) Back() bool {
+	return r.Status == InputBack
 }
 
 type StringResponse struct {

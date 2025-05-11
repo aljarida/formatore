@@ -48,3 +48,11 @@ func (cm *ConsoleMenu) AddOption(name string, fn func()) {
 func (cm *ConsoleMenu) SetIO(io *io.IO) {
 	cm.io = io
 }
+
+func (cm *ConsoleMenu) SetErrorState(b bool) {
+	cm.errorState = b
+}
+
+func (cm *ConsoleMenu) SetBody(s string) {
+	cm.body = s
+}

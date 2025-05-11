@@ -31,10 +31,6 @@ func TestDisplay(t *testing.T) {
 		Controls: "C",
 		Error: "D",
 	}
-	 
-	cm.RenderOnlyHeaders()
-	out = cm.io.O.(*io.MockOutput).Data
-	assert.Equal(t, []string{"A\n", "B\n", "C\n", "D\n"}, out) 
 
 	cm.Render()
 	out = cm.io.O.(*io.MockOutput).Data

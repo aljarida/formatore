@@ -23,17 +23,15 @@ func (app *App) handleErr(err error) {
 	}
 }
 
-func (app *App) handleRes(res io.ResponseStatus) {
+func (app *App) handleQuit(res io.ResponseStatus) {
 	if res == io.InputQuit {
 		os.Exit(1)
-	} else {
-		utils.Assert(res == io.InputOkay, "ResponseStatus was not InputOkay.")
 	}
 }
 
-func (app *App) handleErrAndRes(err error, res io.ResponseStatus) {
+func (app *App) handleErrAndQuit(err error, res io.ResponseStatus) {
 	app.handleErr(err)
-	app.handleRes(res)
+	app.handleQuit(res)
 }
 
 func initializeApp() *App {
@@ -53,9 +51,14 @@ func initializeApp() *App {
 	)
 
 	app.CM = cm
-
 	consolemenu.InitConsoleMenu(cm)
-	app.CM.SetHeaderTitle("=== Formatore ===")
+	cm.SetHeaders(consolemenu.CMHeaders{
+		Title: "=== Formatore ===",
+		Guidance: "Please choose one of the following options.",
+		Controls: "(q) to quit.",
+		Error: "ERR.: Input must match available options!",
+	})
+
 	app.setMainMenuOptions()
 
 	return app
@@ -69,15 +72,17 @@ func (app *App) setMainMenuOptions() {
 		"Add entry": func() { app.addEntryToTable() },
 		"Drop all tables": func() { app.dropAllTables() },
 		"Quit Formatore": func() { os.Exit(1) },
+		"Testing!": func() { app.splash("You've been splashed!") },
 	}
 	app.CM.SetOptions(options)
 }
 
 func (app *App) makeTable() {
 	tbRes, err := app.CM.MakeTableBlueprint()
-	app.handleErr(err)
-	// TODO: Handle non-okay responses without failing.
-	utils.Assert(tbRes.Okay(), "ResponseStatus was not InputOkay.")
+	app.handleErrAndQuit(err, tbRes.Status)
+	if tbRes.Back() {
+		return
+	}
 
 	err = db.CreateTable(app.DB, tbRes.Content)
 	app.handleErr(err)
@@ -95,10 +100,7 @@ func (app *App) tableNames() string {
 }
 
 func (app *App) displayTableNames() {
-	// TODO: Pretty sure that this will need to be its own optionless menu.
-	// NOTE: Good idea: Make a method in ConsoleMenu that creates a menu that
-	// simply displays a splash screen and awaits "b" or "back" basically.
-	app.CM.Display(app.tableNames())
+	app.splash(app.tableNames())
 }
 
 func (app *App) addEntryToTable() {
@@ -109,30 +111,37 @@ func (app *App) addEntryToTable() {
 		return utils.Has(names, s)
 	}
 
-	app.displayTableNames()
-
-	tableRes, err := app.CM.GetStringResponse(validator, consolemenu.CMHeaders{
+	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
 		Title: "=== Table title ===",
 		Guidance: "Please enter a table name",	
 		Error: "Input must be an already existing table!",
-	})
-	app.handleErrAndRes(err, tableRes.Status)
+	}, app.tableNames())
+
+	app.handleErrAndQuit(err, tableRes.Status)
+	if tableRes.Back() {
+		return
+	}
 
 	cbs, err := db.ColumnBlueprints(app.DB, tableRes.Content)
 	app.handleErr(err)
 
 	valuesRes, err := app.CM.GetValues(cbs)
-	app.handleErrAndRes(err, valuesRes.Status)
+	app.handleErrAndQuit(err, valuesRes.Status)
+	if valuesRes.Back() {
+		return
+	}
 
 	err = db.InsertRow(app.DB, tableRes.Content, valuesRes.Content)
 	app.handleErr(err)
+
+	app.splash("Row successfully inserted!")
 }
 
 func (app *App) dropAllTables() {
 	err := db.DropAllTables(app.DB)
 	app.handleErr(err)
-	// TODO: Splash screen: Dropped all tables!
-	app.CM.Displayln("TEMPORARY: Dropped all tables!")
+
+	app.splash("All tables successfully dropped!")
 }
 
 func (app *App) printTablePreview() {
@@ -143,34 +152,53 @@ func (app *App) printTablePreview() {
 		return utils.Has(names, s)
 	}
 
-	tableRes, err := app.CM.LoopUntilValidResponse(validator, consolemenu.CMHeaders{
+	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
 		Guidance: "Please enter a table name.",
 		Error: "Input must be a valid table.",
 	})
-	app.handleErrAndRes(err, tableRes.Status)
+	app.handleErrAndQuit(err, tableRes.Status)
+	if tableRes.Back() {
+		return
+	}
 
 	validator = func(s string) bool {
 		_, ok := utils.IsPositiveInteger(s)
 		return ok
 	}
 
-	nStrRes, err := app.CM.LoopUntilValidResponse(validator, consolemenu.CMHeaders{
+	nStrRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
 		Guidance: "Number of rows (must be positive):",
 		Error: "Must be a positive integer. Try again.",
 	})
-	app.handleErrAndRes(err, nStrRes.Status)
+	app.handleErrAndQuit(err, nStrRes.Status)
+	if nStrRes.Back() {
+		return
+	}
+
 	n, _ := utils.IsPositiveInteger(nStrRes.Content)
 
 	preview, err := db.PreviewLastN(app.DB, tableRes.Content, n)
 	app.handleErr(err)	
 
-	app.CM.Display("TEMPORARY: ")
-	app.CM.Displayln(preview)
+	app.splash(preview)
+}
+
+func (app *App) splash(body string) {
+	res, err := app.CM.StringResponseViaNewMenu(
+		func(s string) bool { return io.InputIsBack(s) || io.InputIsDone(s) },
+		consolemenu.CMHeaders{
+			Title: "=== Splash ===",
+			Controls: "(d) or (b) to go back",
+		},
+		body,
+	)
+	app.handleErrAndQuit(err, res.Status)
 }
 
 func (app *App) loop() {
 	for {
-		app.handleRes(app.CM.Input())
+		res := app.CM.Input()
+		app.handleQuit(res)
 		next := app.CM.Next()	
 		if next != app.CM {
 			app.CM.SetNext(next)

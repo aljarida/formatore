@@ -19,11 +19,13 @@ type CMHeaders struct {
 
 type ConsoleMenu struct {
 	headers CMHeaders // UI textual displays, called on each Render().
+	body string // Primary text.
 	options map[string]func() // Functions which may be called.
+	charsToOptionNames map[string]string // Example: 'q' -> "quit" => options["quit"] -> quitFn().
 
 	io *io.IO // IO for obtaining and sending messages.
 	choice string // Stores user response after obtaining input.
-	charsToOptionNames map[string]string // Example: 'q' -> "quit" => options["quit"] -> quitFn().
+	errorState bool
 
 	next, parent *ConsoleMenu // Links to prior menu and next menu.
 }
