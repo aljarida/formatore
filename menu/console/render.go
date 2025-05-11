@@ -2,18 +2,19 @@ package consolemenu
 
 import (
 	"formatore/utils"
+	"log"
 )
 
-func (cm *ConsoleMenu) display(s string) {
+func (cm *ConsoleMenu) Display(s string) {
 	cm.io.O.Display(s)
 }
 
-func (cm *ConsoleMenu) displayln(s string) {
-	cm.display(s + "\n")
+func (cm *ConsoleMenu) Displayln(s string) {
+	cm.Display(s + "\n")
 }
 
-func (cm *ConsoleMenu) newline() {
-	cm.displayln("")
+func (cm *ConsoleMenu) Newline() {
+	cm.Displayln("")
 }
 
 func (cm *ConsoleMenu) clearScreen() {
@@ -23,39 +24,43 @@ func (cm *ConsoleMenu) clearScreen() {
 
 func (cm *ConsoleMenu) headersPrinterFn() {
 	if cm.headers.Title != "" {
-		cm.displayln(cm.headers.Title)
+		cm.Displayln(cm.headers.Title)
 	}
 	if cm.headers.Guidance != "" {
-		cm.displayln(cm.headers.Guidance)
+		cm.Displayln(cm.headers.Guidance)
 	}
 	if cm.headers.Controls != "" {
-		cm.displayln(cm.headers.Controls)
+		cm.Displayln(cm.headers.Controls)
 	}
 	if cm.headers.Error != "" {
-		cm.displayln(cm.headers.Error)
+		cm.Displayln(cm.headers.Error)
 	}
 }
 
 func (cm *ConsoleMenu) optionsPrinterFn() {
+	log.Print("optionsPrinterFn found!")
+	log.Print(cm)
+	log.Print(cm.options)
 	if len(cm.options) > 0 {
-		cm.display("Options:")
-		for k := range cm.options {
-			cm.display(utils.ParenthesizeFirstChar(k))
+		cm.Displayln("Options:")
+		for optName := range cm.options {
+			log.Print("Options found!")
+			cm.Displayln(utils.ParenthesizeFirstChar(optName))
 		}
 	}
 }
 
 func (cm *ConsoleMenu) renderEach(printerFns ...func()) {
-	cm.clearScreen()
+	// cm.clearScreen()
 
 	for _, printerFn := range printerFns {
 		printerFn()
 	}
 
-	cm.newline()
+	cm.Newline()
 }
 
-func (cm *ConsoleMenu) substituteNonEmptyHeaders(hs cmHeaders) {
+func (cm *ConsoleMenu) substituteNonEmptyHeaders(hs CMHeaders) {
 	const emptyString string = ""
 	if hs.Title != emptyString {
 		cm.SetHeaderTitle(hs.Title)
@@ -71,9 +76,9 @@ func (cm *ConsoleMenu) substituteNonEmptyHeaders(hs cmHeaders) {
 	}
 }
 
-// TODO: Does a menu which actively updates its headers need the option to not display its options?
+// TODO: Does a menu which actively updates its headers need the option to not Display its options?
 // TODO: Can the be reworded so it's less verbose?
-func (cm *ConsoleMenu) SubstituteAndRerenderOnlyHeaders (hs cmHeaders) {
+func (cm *ConsoleMenu) SubstituteAndRerenderOnlyHeaders (hs CMHeaders) {
 	cm.substituteNonEmptyHeaders(hs)
 	cm.RenderOnlyHeaders()
 }

@@ -1,164 +1,189 @@
 package main
-/*j
+
 import (
 	"database/sql"
-	"formatore/ui"
 	"formatore/utils"
-	"fmt"
 	"formatore/db"
+	"formatore/io"
+	"formatore/enums"
+	"formatore/menu/console"
 	"strings"
+	"fmt"
+	"log"
+	"os"
 )
 
-var commonIO = &ui.IO{
-	I: &ui.FmtInput{},
-	O: &ui.FmtOutput{},
+type App struct {
+	DB *sql.DB
+	CM *consolemenu.ConsoleMenu
 }
 
-var dbase *sql.DB
-
-func handleErr(err error) {
+func (app *App) handleErr(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
-NOTE: Preserved for reference. Must be refactored, cleaned up.
-func makeTable() {
-	tb, err := ui.MakeTable(commonIO)
-	handleErr(err)
-	err = db.CreateTable(dbase, tb)
-	handleErr(err)
+func (app *App) handleRes(res io.ResponseStatus) {
+	if res == io.InputQuit {
+		os.Exit(1)
+	} else {
+		utils.Assert(res == io.InputOkay, "ResponseStatus was not InputOkay.")
+	}
 }
 
-func getTableNames() string {
-	names, err := db.TableNames(dbase)
-	handleErr(err)
+func (app *App) handleErrAndRes(err error, res io.ResponseStatus) {
+	app.handleErr(err)
+	app.handleRes(res)
+}
+
+func initializeApp() *App {
+	app := &App{}
+
+	dbase, err := db.ConnectToDB(enums.DBName)
+	app.handleErr(err)
+
+	app.DB = dbase
+
+	cm := &consolemenu.ConsoleMenu{}
+	cm.SetIO(
+		&io.IO{
+			I: &io.FmtInput{},
+			O: &io.FmtOutput{},
+		},
+	)
+
+	app.CM = cm
+
+	app.setMainMenuOptions()
+	consolemenu.InitConsoleMenu(cm)
+
+	return app
+}
+
+func (app *App) setMainMenuOptions() {
+	utils.Assert(app.CM != nil, "CM must be initialized.")
+	options := map[string]func() {
+		"Make table": func() { app.makeTable() },
+		"Display tables": func() { app.displayTableNames() },
+		"Add entry": func() { app.addEntryToTable() },
+		"Drop all tables": func() { app.dropAllTables() },
+		"Quit Formatore": func() { os.Exit(1) },
+	}
+	app.CM.SetOptions(options)
+	log.Print(app.CM)
+}
+
+func (app *App) makeTable() {
+	tbRes, err := app.CM.MakeTableBlueprint()
+	app.handleErr(err)
+	// TODO: Handle non-okay responses without failing.
+	utils.Assert(tbRes.Okay(), "ResponseStatus was not InputOkay.")
+
+	err = db.CreateTable(app.DB, tbRes.Content)
+	app.handleErr(err)
+}
+
+func (app *App) tableNames() string {
+	names, err := db.TableNames(app.DB)
+	app.handleErr(err)
+	
 	var builder strings.Builder
-	for _, n := range names { 
-		builder.WriteString(fmt.Sprintf("%s\n", n))
+	for i, n := range names { 
+		builder.WriteString(fmt.Sprintf("%d: %s\n", i + 1, n))
 	}
 	return builder.String()
 }
 
-func displayTableNames() {
-	commonIO.O.Display(getTableNames())
+func (app *App) displayTableNames() {
+	// TODO: Pretty sure that this will need to be its own optionless menu.
+	// NOTE: Good idea: Make a method in ConsoleMenu that creates a menu that
+	// simply displays a splash screen and awaits "b" or "back" basically.
+	app.CM.Display(app.tableNames())
 }
 
-func addToTable() {
-	names, err := db.TableNames(dbase)
-	handleErr(err)
-	
+func (app *App) addEntryToTable() {
+	names, err := db.TableNames(app.DB)
+	app.handleErr(err)
+
 	validator := func(s string) bool {
 		return utils.Has(names, s)
 	}
 
-	commonIO.O.Display(getTableNames())
+	app.displayTableNames()
 
-	tableName, err := commonIO.LoopUntilValidResponse(validator,
-										   "Table name:",
-										   "Must be an existent table.")
-	handleErr(err)
+	tableRes, err := app.CM.LoopUntilValidResponse(validator, consolemenu.CMHeaders{
+		Guidance: "Table name:",	
+		Error: "Input must be a valid table.",
+		Controls: "<< (q) to quit >>",
+	})
+	app.handleErrAndRes(err, tableRes.Status)
 
-	cbs, err := db.ColumnBlueprints(dbase, tableName)
-	handleErr(err)
-	fmt.Println(cbs)
+	cbs, err := db.ColumnBlueprints(app.DB, tableRes.Content)
+	app.handleErr(err)
 
-	values, err := ui.GetValues(commonIO, cbs[2:])
-	handleErr(err)
-	fmt.Println(values)
+	valuesRes, err := app.CM.GetValues(cbs)
+	app.handleErrAndRes(err, valuesRes.Status)
 
-	err = db.InsertRow(dbase, tableName, values)
-	handleErr(err)
+	err = db.InsertRow(app.DB, tableRes.Content, valuesRes.Content)
+	app.handleErr(err)
 }
 
-
-func dropAllTables() {
-	err := db.DropAllTables(dbase)
-	handleErr(err)
-	fmt.Printf("Dropped all tables!")
+func (app *App) dropAllTables() {
+	err := db.DropAllTables(app.DB)
+	app.handleErr(err)
+	// TODO: Splash screen: Dropped all tables!
+	app.CM.Displayln("TEMPORARY: Dropped all tables!")
 }
 
-func printTablePreview() {
-	names, err := db.TableNames(dbase)
-	handleErr(err)
+func (app *App) printTablePreview() {
+	names, err := db.TableNames(app.DB)
+	app.handleErr(err)
+
 	validator := func(s string) bool {
 		return utils.Has(names, s)
 	}
-	tableName, err := commonIO.LoopUntilValidResponse(validator,
-										   "Table name:",
-										   "Must be an existent table")
-	handleErr(err)
+
+	tableRes, err := app.CM.LoopUntilValidResponse(validator, consolemenu.CMHeaders{
+		Guidance: "Table name:",
+		Error: "Input must be a valid table.",
+	})
+	app.handleErrAndRes(err, tableRes.Status)
+
 	validator = func(s string) bool {
 		_, ok := utils.IsPositiveInteger(s)
 		return ok
 	}
 
-	nStr, err := commonIO.LoopUntilValidResponse(validator, "Number of rows:", "Must be positive integer.")
-	n, ok := utils.IsPositiveInteger(nStr)
-	utils.Assert(ok == true, "Expected confirmation of a positive integer.")
+	nStrRes, err := app.CM.LoopUntilValidResponse(validator, consolemenu.CMHeaders{
+		Guidance: "Number of rows (must be positive):",
+		Error: "Must be a positive integer. Try again.",
+	})
+	app.handleErrAndRes(err, nStrRes.Status)
+	n, _ := utils.IsPositiveInteger(nStrRes.Content)
 
-	preview, err := db.PreviewLastN(dbase, tableName, n)
-	handleErr(err)
-	commonIO.O.Display(preview)
+	preview, err := db.PreviewLastN(app.DB, tableRes.Content, n)
+	app.handleErr(err)	
+
+	app.CM.Display("TEMPORARY: ")
+	app.CM.Displayln(preview)
+}
+
+func (app *App) loop() {
+//	for {
+		app.CM.Render()
+		/*
+		app.handleRes(app.CM.Input())
+		next := app.CM.Next()	
+		if next != app.CM {
+			app.CM.SetNext(next)
+		}
+		*/
+//	}
 }
 
 func main() {
-	var err error
-	dbase, err = db.ConnectToDB(enums.DBName)
-	handleErr(err)
-	fmt.Println("Connected to database!")
-
-	var MainMenu *ui.ConsoleMenu
-
-	do := true
-	MainMenu = &ui.ConsoleMenu{
-		IO: commonIO,
-		Options: map[string]func() {
-			"Create new table": makeTable,
-			"Add to table": addToTable,
-			"View tables": displayTableNames,
-			"Drop all tables": dropAllTables,
-			"Preview tables": printTablePreview,
-			"Quit application" : func () { do = false },
-		},
-	}
-
-	MainMenu.Initialize()
-
-	settingsMenu := &ui.ConsoleMenu{
-		IO: commonIO,
-		Headers: ui.Headers{
-			Title: "Header Menu",
-		},
-	}
-
-	var menu *ui.ConsoleMenu
-	menu = &ui.ConsoleMenu{
-		PreCallback: func() { 
-			commonIO.O.Display("PreCallback Working!") 
-		},
-		Headers: ui.Headers{
-			Title: "Main v1",
-			Guidance: "Quit terminal to quit!",
-			Error: "ERROR: Preview build.",
-		},
-		Options: map[string]func() {
-			"Settings": func() {
-				menu.SetNext(settingsMenu)
-			},
-		},
-	}
-	menu.Initialize()
-
-	for {
-		menu.Visualize()
-		menu.Input()
-		next := menu.Next()
-		if next != menu {
-			next.Parent = menu
-		}
-		menu = next
-	}
-
+	app := initializeApp()		
+	log.Print(app.CM)
+	app.loop()
 }
-*/

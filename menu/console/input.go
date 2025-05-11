@@ -26,13 +26,13 @@ func (cm *ConsoleMenu) Input() io.ResponseStatus {
 	isValid := func(s string) bool {
 		_, optionFullExists := cm.options[s]
 		_, optionAbbrevExists := cm.charsToOptionNames[s]
-		// TODO: Strange that "InputIsBack only appears here.
+		// TODO: Strange that "InputIsBack" only appears here.
 		return optionFullExists || optionAbbrevExists || io.InputIsBack(s)
 	}
 
 	response, err := cm.LoopUntilValidResponse(
 		isValid, 
-		cmHeaders{
+		CMHeaders{
 			Guidance: "Action:",
 			Error: "Please choose from the available options.",
 		},
@@ -45,6 +45,8 @@ func (cm *ConsoleMenu) Input() io.ResponseStatus {
 
 	if response.Okay() {
 		cm.choice = response.Content
+	} else {
+		cm.choice = "" // Sanitize any prior choice that may be left over.
 	}
 
 	return response.Status

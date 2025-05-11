@@ -21,5 +21,9 @@ func (cm *ConsoleMenu) Next() *ConsoleMenu {
 		option()
 	}
 
-	return cm.next
+	if cm.next != nil {
+		return cm.next
+	} else {
+		return cm
+	}
 }

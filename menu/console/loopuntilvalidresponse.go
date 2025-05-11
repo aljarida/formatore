@@ -10,12 +10,12 @@ const errorThreshold int = 100
 // NOTE: Function only returns content with InputDone.
 func (cm *ConsoleMenu) LoopUntilValidResponse(
 		validator func(string) bool,
-		hs cmHeaders) (io.StringResponse, error) {
+		hs CMHeaders) (io.StringResponse, error) {
 	if validator == nil {
 		return io.StringResponse{}, errors.ErrNeedValidator
 	}
 
-	cm.SubstituteAndRerenderOnlyHeaders(cmHeaders{Guidance: hs.Guidance})
+	cm.SubstituteAndRerenderOnlyHeaders(CMHeaders{Guidance: hs.Guidance})
 
 	counter := 0
 	res := io.StringResponse{}
@@ -33,7 +33,7 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 			res.Status = io.InputQuit
 			return res, nil
 		} else if !validInput {
-			cm.SubstituteAndRerenderOnlyHeaders(cmHeaders{Error: hs.Error})
+			cm.SubstituteAndRerenderOnlyHeaders(CMHeaders{Error: hs.Error})
 			counter += 1
 			if counter > errorThreshold {
 				return res, errors.ErrTooManyInvalidResponses

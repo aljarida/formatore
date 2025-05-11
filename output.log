@@ -1,0 +1,7 @@
+2025/05/10 22:27:15 SetOptions found!
+2025/05/10 22:27:15 &{{   } map[Add entry:0x4f8260 Display tables:0x4f82a0 Drop all tables:0x4f8220 Make table:0x4f82e0 Quit Formatore:0x4f8be0] 0xc00007c080  map[A:Add entry D:Drop all tables M:Make table Q:Quit Formatore a:Add entry d:Drop all tables m:Make table q:Quit Formatore] <nil> <nil>}
+2025/05/10 22:27:15 &{{   } map[] 0xc00007c080  map[A:Add entry D:Drop all tables M:Make table Q:Quit Formatore a:Add entry d:Drop all tables m:Make table q:Quit Formatore] <nil> <nil>}
+2025/05/10 22:27:15 optionsPrinterFn found!
+2025/05/10 22:27:15 &{{   } map[] 0xc00007c080  map[A:Add entry D:Drop all tables M:Make table Q:Quit Formatore a:Add entry d:Drop all tables m:Make table q:Quit Formatore] <nil> <nil>}
+2025/05/10 22:27:15 map[]
+

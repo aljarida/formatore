@@ -10,7 +10,7 @@ func (cm *ConsoleMenu) MakeTableBlueprint() (io.TableBlueprintResponse, error) {
 	tbRes := io.TableBlueprintResponse{}
 	tableNameRes, err := cm.LoopUntilValidResponse(
 		utils.IsNotReserved,
-		cmHeaders{
+		CMHeaders{
 			Guidance: "Table name:",
 			Error: "Invalid table name."},
 		)

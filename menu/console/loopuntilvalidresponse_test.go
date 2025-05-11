@@ -15,12 +15,13 @@ func TestLoopUntilValidResponse(t *testing.T) {
 		I: &io.MockInput{Data: []string{expected}},
 		O: &io.MockOutput{},
 	}
-	cm := makeMockConsoleMenu(&mockIO)
+	cm := makeConsoleMenuWithIO(&mockIO)
 
-	emptyHs := cmHeaders{}
+	emptyHs := CMHeaders{}
 	res, err := cm.LoopUntilValidResponse(utils.IsNotReserved, emptyHs)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, expected, res.Content, "Should be equal.")
+	assert.Equal(t, io.InputOkay, res.Status, "Should be equal.")
 
 	setInputData(t, cm, []string{"NULL", expected}) 
 	res, err = cm.LoopUntilValidResponse(utils.IsNotReserved, emptyHs)
@@ -39,4 +40,19 @@ func TestLoopUntilValidResponse(t *testing.T) {
 	res, err = cm.LoopUntilValidResponse(utils.IsNotReserved, emptyHs)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputDone, res.Status, "Should be equal.")
+
+	setInputData(t, cm, make([]string, errorThreshold + 1))
+	notEmpty := func(s string) bool { return s != "" }
+	_, err = cm.LoopUntilValidResponse(notEmpty, emptyHs)
+	assert.ErrorIs(t, errors.ErrTooManyInvalidResponses, err)
+
+	setInputData(t, cm, []string{"a"})
+	empty := func(s string) bool { return s == "" }	
+	testHeaders := CMHeaders{
+		Guidance: "X",
+		Error: "Y",
+	}
+	_, _ = cm.LoopUntilValidResponse(empty, testHeaders)
+	assert.Equal(t, "X", cm.headers.Guidance)
+	assert.Equal(t, "Y", cm.headers.Error)
 }

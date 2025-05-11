@@ -96,7 +96,7 @@ func IsPositiveInteger(s string) (int, bool) {
 	return n, true
 }
 
-func Assert(condition bool, msg string) {
+func Assert(condition bool, msg ...string) {
 	if !condition {
 		panic(msg)
 	}
@@ -124,7 +124,6 @@ func Has(arr []string, s string) bool {
 	return false
 }
 
-// TODO: Add unit test.
 func ParenthesizeFirstChar(s string) string {
 	if s == "" {
 		return s
@@ -142,7 +141,6 @@ func ParenthesizeFirstChar(s string) string {
 	return b.String()
 }
 
-// TODO: Add unit test.
 func PrettyColumnNameAsQuestion(s string) string {
 	var b strings.Builder
 	b.Grow(len(s) + len("[?]"))

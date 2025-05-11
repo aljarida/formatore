@@ -152,3 +152,19 @@ func TestTime(t *testing.T) {
 	assert.Greater(t, got, start, "Expected acquired time to be greater than start time.")
 	assert.Greater(t, end, got, "Expected end time to be greater than acquired time.")
 }
+
+func TestParenthesizeFirstChar(t *testing.T) {
+	s := ParenthesizeFirstChar("T")
+	assert.Equal(t, "(T)", s)
+
+	s = ParenthesizeFirstChar("")
+	assert.Equal(t, "", s)
+}
+
+func TestPrettyColumnNameAsQuestion(t *testing.T) {
+	s := PrettyColumnNameAsQuestion("a_b_c_d")
+	assert.Equal(t, "A b c d[?]", s)
+	
+	s = PrettyColumnNameAsQuestion("")
+	assert.Equal(t, "[?]", s)
+}

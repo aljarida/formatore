@@ -20,7 +20,7 @@ func TestMakeTableBlueprint(t *testing.T) {
 		O: &io.MockOutput{},
 	}
 
-	cm := makeMockConsoleMenu(mockIO)
+	cm := makeConsoleMenuWithIO(mockIO)
 
 	cbs := []structs.ColumnBlueprint{{Name: q1, Type: t1}, {Name: q2, Type: t2}}
 	expected := structs.TableBlueprint{

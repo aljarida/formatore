@@ -10,7 +10,7 @@ func (cm *ConsoleMenu) Read() (string, error) {
 	return cm.io.I.Read()
 }
 
-type cmHeaders struct {
+type CMHeaders struct {
 	Title string
 	Guidance string
 	Controls string
@@ -18,7 +18,7 @@ type cmHeaders struct {
 }
 
 type ConsoleMenu struct {
-	headers cmHeaders // UI textual displays, called on each Render().
+	headers CMHeaders // UI textual displays, called on each Render().
 	options map[string]func() // Functions which may be called.
 
 	io *io.IO // IO for obtaining and sending messages.
@@ -30,6 +30,7 @@ type ConsoleMenu struct {
 
 func InitConsoleMenu(cm *ConsoleMenu) *ConsoleMenu {
 	cm.initCharsToOptionNames()
+	cm.options = make(map[string]func(), 8)
 	utils.Assert(cm.io != nil, "IO must not be nil!")
 	return cm
 }

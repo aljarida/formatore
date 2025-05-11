@@ -9,24 +9,6 @@ import (
 )
 
 // TODO: Test MockOutput results.
-// TODO: Place this in a better location.
-func makeMockConsoleMenu(ioObj *io.IO) *ConsoleMenu {
-	return InitConsoleMenu(
-		&ConsoleMenu{
-			io: ioObj,
-		},
-	)
-}
-
-func setInputData(t *testing.T, cm *ConsoleMenu, data []string) {
-	if mock, ok := cm.io.I.(*io.MockInput); ok {
-		mock.SetData(data)
-	} else {
-		t.Fatalf("Expected cm.io.I to be a *MockInput; got %T.", cm.io.I)
-	}
-}
-
-
 func TestGetQuestion(t *testing.T) {
 	expectedN := "What?" 
 	expectedT := enums.Text
@@ -34,7 +16,7 @@ func TestGetQuestion(t *testing.T) {
 		I: &io.MockInput{Data: []string{"NULL", "PRAGMA", "JOIN", expectedN, "SELECT", expectedT}},
 		O: &io.MockOutput{},
 	}
-	cm := makeMockConsoleMenu(mockIO)
+	cm := makeConsoleMenuWithIO(mockIO)
 
 	res, err := cm.getQuestion()
 	assert.NoError(t, err, "Should not error.")
@@ -66,7 +48,7 @@ func TestGetQuestions(t *testing.T) {
 		O: &io.MockOutput{},
 	}
 
-	cm := makeMockConsoleMenu(mockIO)
+	cm := makeConsoleMenuWithIO(mockIO)
 
 	expected := []structs.ColumnBlueprint{
 		{Name: q1, Type: t1},
