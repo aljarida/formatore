@@ -9,7 +9,6 @@ import (
 	"formatore/menu/console"
 	"strings"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -55,8 +54,8 @@ func initializeApp() *App {
 
 	app.CM = cm
 
-	app.setMainMenuOptions()
 	consolemenu.InitConsoleMenu(cm)
+	app.setMainMenuOptions()
 
 	return app
 }
@@ -71,7 +70,6 @@ func (app *App) setMainMenuOptions() {
 		"Quit Formatore": func() { os.Exit(1) },
 	}
 	app.CM.SetOptions(options)
-	log.Print(app.CM)
 }
 
 func (app *App) makeTable() {
@@ -184,6 +182,5 @@ func (app *App) loop() {
 
 func main() {
 	app := initializeApp()		
-	log.Print(app.CM)
 	app.loop()
 }

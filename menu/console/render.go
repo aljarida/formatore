@@ -38,13 +38,9 @@ func (cm *ConsoleMenu) headersPrinterFn() {
 }
 
 func (cm *ConsoleMenu) optionsPrinterFn() {
-	log.Print("optionsPrinterFn found!")
-	log.Print(cm)
-	log.Print(cm.options)
 	if len(cm.options) > 0 {
 		cm.Displayln("Options:")
 		for optName := range cm.options {
-			log.Print("Options found!")
 			cm.Displayln(utils.ParenthesizeFirstChar(optName))
 		}
 	}

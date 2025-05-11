@@ -29,7 +29,7 @@ type ConsoleMenu struct {
 }
 
 func InitConsoleMenu(cm *ConsoleMenu) *ConsoleMenu {
-	cm.initCharsToOptionNames()
+	utils.Assert(cm.options == nil, "Can not initialize an already initialized CM!")
 	cm.options = make(map[string]func(), 8)
 	utils.Assert(cm.io != nil, "IO must not be nil!")
 	return cm

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"formatore/structs"
 	"formatore/utils"
-	"log"
 )
 
 func ColumnBlueprints(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, error) {
@@ -54,10 +53,8 @@ func InsertRow(db *sql.DB, tableName string, values []string) error {
 	fmtColumnNames := utils.JoinWithCommasSpaces(columnNames)
 
 	fmtValues := utils.JoinWithCommasSpaces(valuesWithTimestamp)
-	log.Println(fmtValues)
 
 	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s);", tableName, fmtColumnNames, fmtValues)
-	log.Println(query)
 	if _, err = db.Exec(query); err != nil {
 		return fmt.Errorf("Failed to insert into %s: ~%v~.", tableName, err)
 	}
