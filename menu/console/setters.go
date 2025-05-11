@@ -2,7 +2,6 @@ package consolemenu
 
 import (
 	"formatore/io"
-	"log"
 )
 
 func (cm *ConsoleMenu) SetNext(next *ConsoleMenu) {
@@ -34,7 +33,6 @@ func (cm *ConsoleMenu) SetHeaderError(s string) {
 }
 
 func (cm *ConsoleMenu) SetOptions(options map[string]func()) {
-	log.Print("SetOptions found!")
 	cm.options = options
 	cm.initCharsToOptionNames()
 }

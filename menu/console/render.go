@@ -2,7 +2,6 @@ package consolemenu
 
 import (
 	"formatore/utils"
-	"log"
 )
 
 func (cm *ConsoleMenu) Display(s string) {
@@ -47,6 +46,8 @@ func (cm *ConsoleMenu) optionsPrinterFn() {
 }
 
 func (cm *ConsoleMenu) renderEach(printerFns ...func()) {
+	// TODO: Remove comment.
+	// TEMPORARY COMMENTING-OUT.
 	// cm.clearScreen()
 
 	for _, printerFn := range printerFns {

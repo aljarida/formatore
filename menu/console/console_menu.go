@@ -39,14 +39,16 @@ func (cm *ConsoleMenu) initCharsToOptionNames() {
  	numOptions := len(cm.options)
 	charsToOptionNames := make(map[string]string, numOptions)
 
-	for k := range cm.options {
-		firstChar := string(k[0])
+	for optName := range cm.options {
+		firstChar := string(optName[0])
+		_, ok := charsToOptionNames[firstChar]
+		utils.Assert(ok == false, "There can not be two options of the same first character!")
 
 		firstCharUpper := strings.ToUpper(firstChar)
-		charsToOptionNames[firstCharUpper] = k
+		charsToOptionNames[firstCharUpper] = optName
 
 		firstCharLower := strings.ToLower(firstChar)
-		charsToOptionNames[firstCharLower] = k
+		charsToOptionNames[firstCharLower] = optName
 	}
 
 	cm.charsToOptionNames = charsToOptionNames

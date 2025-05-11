@@ -64,7 +64,7 @@ func (app *App) setMainMenuOptions() {
 	utils.Assert(app.CM != nil, "CM must be initialized.")
 	options := map[string]func() {
 		"Make table": func() { app.makeTable() },
-		"Display tables": func() { app.displayTableNames() },
+		"Show tables": func() { app.displayTableNames() },
 		"Add entry": func() { app.addEntryToTable() },
 		"Drop all tables": func() { app.dropAllTables() },
 		"Quit Formatore": func() { os.Exit(1) },
@@ -168,16 +168,14 @@ func (app *App) printTablePreview() {
 }
 
 func (app *App) loop() {
-//	for {
+	for {
 		app.CM.Render()
-		/*
 		app.handleRes(app.CM.Input())
 		next := app.CM.Next()	
 		if next != app.CM {
 			app.CM.SetNext(next)
 		}
-		*/
-//	}
+	}
 }
 
 func main() {

@@ -49,26 +49,26 @@ func IsValidIdentifier(str string) error {
 	return nil
 }
 
-// Function takes arbitrary # of strings.
-// Efficiently builds concatenated version.
-func JoinStrings(strs ...string) string {
-	var builder strings.Builder
-	for _, str := range strs {
-		builder.WriteString(str)
-	}
-	return builder.String()	
-}
-
-func JoinWithCommasSpaces(values []string) string {
+func JoinStrArrWith(values []string, glue string) string {
 	var builder strings.Builder
 	for i, value := range values {
 		if i > 0 {
-			builder.WriteString(", ")
+			builder.WriteString(glue)
 		}
 		builder.WriteString(value)
 	}
 
 	return builder.String()
+}
+
+// Function takes arbitrary # of strings.
+// Efficiently builds concatenated version.
+func JoinStrings(strs ...string) string {
+	return JoinStrArrWith(strs, "")
+}
+
+func JoinWithCommasSpaces(values []string) string {
+	return JoinStrArrWith(values, ", ")
 }
 
 func Map[T any, R any](items []T, mapFn func(item T) R) []R {
@@ -98,7 +98,7 @@ func IsPositiveInteger(s string) (int, bool) {
 
 func Assert(condition bool, msg ...string) {
 	if !condition {
-		panic(msg)
+		panic(JoinStrArrWith(msg, "...\n"))
 	}
 }
 
