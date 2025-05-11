@@ -55,6 +55,7 @@ func initializeApp() *App {
 	app.CM = cm
 
 	consolemenu.InitConsoleMenu(cm)
+	app.CM.SetHeaderTitle("=== Formatore ===")
 	app.setMainMenuOptions()
 
 	return app
@@ -110,10 +111,10 @@ func (app *App) addEntryToTable() {
 
 	app.displayTableNames()
 
-	tableRes, err := app.CM.LoopUntilValidResponse(validator, consolemenu.CMHeaders{
-		Guidance: "Table name:",	
-		Error: "Input must be a valid table.",
-		Controls: "<< (q) to quit >>",
+	tableRes, err := app.CM.GetStringResponse(validator, consolemenu.CMHeaders{
+		Title: "=== Table title ===",
+		Guidance: "Please enter a table name",	
+		Error: "Input must be an already existing table!",
 	})
 	app.handleErrAndRes(err, tableRes.Status)
 
@@ -143,7 +144,7 @@ func (app *App) printTablePreview() {
 	}
 
 	tableRes, err := app.CM.LoopUntilValidResponse(validator, consolemenu.CMHeaders{
-		Guidance: "Table name:",
+		Guidance: "Please enter a table name.",
 		Error: "Input must be a valid table.",
 	})
 	app.handleErrAndRes(err, tableRes.Status)
@@ -169,7 +170,6 @@ func (app *App) printTablePreview() {
 
 func (app *App) loop() {
 	for {
-		app.CM.Render()
 		app.handleRes(app.CM.Input())
 		next := app.CM.Next()	
 		if next != app.CM {

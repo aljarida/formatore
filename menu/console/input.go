@@ -33,8 +33,8 @@ func (cm *ConsoleMenu) Input() io.ResponseStatus {
 	response, err := cm.LoopUntilValidResponse(
 		isValid, 
 		CMHeaders{
-			Guidance: "Action:",
-			Error: "Please choose from the available options.",
+			Guidance: "Please choose an action.",
+			Error: "ERROR: Action must match available options.",
 		},
 	)
 

@@ -34,13 +34,9 @@ func TestDisplay(t *testing.T) {
 	 
 	cm.RenderOnlyHeaders()
 	out = cm.io.O.(*io.MockOutput).Data
-	assert.Equal(t, []string{"A\n", "B\n", "C\n", "D\n", "\n"}, out) 
+	assert.Equal(t, []string{"A\n", "B\n", "C\n", "D\n"}, out) 
 
 	cm.Render()
 	out = cm.io.O.(*io.MockOutput).Data
-	assert.Equal(t, []string{"Options:\n", "(E)\n", "A\n", "B\n", "C\n", "D\n", "\n"}, out) 
-
-	cm.SubstituteAndRerenderOnlyHeaders(CMHeaders{Title: "F"})
-	out = cm.io.O.(*io.MockOutput).Data
-	assert.Equal(t, []string{"F\n", "B\n", "C\n", "D\n", "\n"}, out) 
+	assert.Equal(t, []string{"Options:\n", "(E)\n", "A\n", "B\n", "C\n", "D\n"}, out) 
 }

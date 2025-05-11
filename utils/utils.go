@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 	"unicode"
+	"sort"
 )
 
 // Source: https://sqlite.org/datatype3.html
@@ -164,3 +165,13 @@ func PrettyColumnNameAsQuestion(s string) string {
 	return b.String()
 }
 
+
+func GetSortedKeys[T any](m map[string]T) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	
+	sort.Strings(keys)
+	return keys
+}

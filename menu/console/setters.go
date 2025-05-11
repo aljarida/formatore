@@ -5,6 +5,9 @@ import (
 )
 
 func (cm *ConsoleMenu) SetNext(next *ConsoleMenu) {
+	if cm != next {
+		next.SetParent(cm)
+	}
 	cm.next = next
 }
 

@@ -15,7 +15,7 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 		return io.StringResponse{}, errors.ErrNeedValidator
 	}
 
-	cm.SubstituteAndRerenderOnlyHeaders(CMHeaders{Guidance: hs.Guidance})
+	cm.SubstituteHeadersAndRerender(CMHeaders{Guidance: hs.Guidance})
 
 	counter := 0
 	res := io.StringResponse{}
@@ -33,7 +33,7 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 			res.Status = io.InputQuit
 			return res, nil
 		} else if !validInput {
-			cm.SubstituteAndRerenderOnlyHeaders(CMHeaders{Error: hs.Error})
+			cm.SubstituteHeadersAndRerender(CMHeaders{Error: hs.Error})
 			counter += 1
 			if counter > errorThreshold {
 				return res, errors.ErrTooManyInvalidResponses
@@ -46,4 +46,14 @@ func (cm *ConsoleMenu) LoopUntilValidResponse(
 			return res, nil
 		}
 	}
+}
+
+func (cm *ConsoleMenu) GetStringResponse(validator func(string) bool, hs CMHeaders) (io.StringResponse, error) {
+	other := InitConsoleMenu(&ConsoleMenu{
+		headers: hs,
+		parent: cm,
+		io: cm.io,
+	})
+	res, err := other.LoopUntilValidResponse(validator, hs)
+	return res, err
 }

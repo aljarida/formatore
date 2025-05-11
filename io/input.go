@@ -14,7 +14,7 @@ type InputReader interface {
 type FmtInput struct{}
 func (r *FmtInput) Read() (string, error) {
 	reader := bufio.NewReader(os.Stdin)
-    response, err := reader.ReadString('\n') // Read until newline
+    response, err := reader.ReadString('\n') // Read until newline.
     if err != nil {
         return "", err
     }

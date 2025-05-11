@@ -37,24 +37,24 @@ func (cm *ConsoleMenu) headersPrinterFn() {
 }
 
 func (cm *ConsoleMenu) optionsPrinterFn() {
-	if len(cm.options) > 0 {
-		cm.Displayln("Options:")
-		for optName := range cm.options {
-			cm.Displayln(utils.ParenthesizeFirstChar(optName))
-		}
+	if len(cm.options) == 0 {
+		return
+	}
+	
+	sortedKeys := utils.GetSortedKeys(cm.options)
+
+	cm.Displayln("Options:")
+	for _, optName := range sortedKeys {
+		cm.Displayln(utils.ParenthesizeFirstChar(optName))
 	}
 }
 
 func (cm *ConsoleMenu) renderEach(printerFns ...func()) {
-	// TODO: Remove comment.
-	// TEMPORARY COMMENTING-OUT.
-	// cm.clearScreen()
+	cm.clearScreen()
 
 	for _, printerFn := range printerFns {
 		printerFn()
 	}
-
-	cm.Newline()
 }
 
 func (cm *ConsoleMenu) substituteNonEmptyHeaders(hs CMHeaders) {
@@ -73,11 +73,9 @@ func (cm *ConsoleMenu) substituteNonEmptyHeaders(hs CMHeaders) {
 	}
 }
 
-// TODO: Does a menu which actively updates its headers need the option to not Display its options?
-// TODO: Can the be reworded so it's less verbose?
-func (cm *ConsoleMenu) SubstituteAndRerenderOnlyHeaders (hs CMHeaders) {
+func (cm *ConsoleMenu) SubstituteHeadersAndRerender(hs CMHeaders) {
 	cm.substituteNonEmptyHeaders(hs)
-	cm.RenderOnlyHeaders()
+	cm.Render()
 }
 
 func (cm *ConsoleMenu) RenderOnlyHeaders() {
@@ -85,5 +83,5 @@ func (cm *ConsoleMenu) RenderOnlyHeaders() {
 }
 
 func (cm *ConsoleMenu) Render() {
-	cm.renderEach(cm.optionsPrinterFn, cm.headersPrinterFn)
+	cm.renderEach(cm.headersPrinterFn, cm.optionsPrinterFn)
 }
