@@ -71,8 +71,9 @@ func (app *App) setMainMenuOptions() {
 		"Show tables": func() { app.displayTableNames() },
 		"Add entry": func() { app.addEntryToTable() },
 		"Drop all tables": func() { app.dropAllTables() },
+		"Preview": func() { app.printTablePreview() },
 		"Quit Formatore": func() { os.Exit(1) },
-		"Testing!": func() { app.splash("You've been splashed!") },
+		"Testing!": func() { app.splash("Testing well?!") },
 	}
 	app.CM.SetOptions(options)
 }
@@ -122,7 +123,7 @@ func (app *App) addEntryToTable() {
 		return
 	}
 
-	cbs, err := db.ColumnBlueprints(app.DB, tableRes.Content)
+	cbs, err := db.CBsModuloAutogenCols(app.DB, tableRes.Content)
 	app.handleErr(err)
 
 	valuesRes, err := app.CM.GetValues(cbs)
@@ -155,7 +156,7 @@ func (app *App) printTablePreview() {
 	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
 		Guidance: "Please enter a table name.",
 		Error: "Input must be a valid table.",
-	})
+	}, app.tableNames())
 	app.handleErrAndQuit(err, tableRes.Status)
 	if tableRes.Back() {
 		return

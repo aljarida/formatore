@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"formatore/structs"
 	"formatore/utils"
+	"formatore/errors"
 )
 
 func ColumnBlueprints(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, error) {
@@ -15,6 +16,19 @@ func ColumnBlueprints(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, 
 		return structs.ColumnBlueprint{Name: colName, Type: colType}, err
 	}
 	return queryAndScan(db, query, scanFn)
+}
+
+func CBsModuloAutogenCols(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, error) {
+	cbs, err := ColumnBlueprints(db, tableName)
+	if err != nil {
+		return []structs.ColumnBlueprint{}, err
+	}
+
+	if len(cbs) < 2 {
+		return []structs.ColumnBlueprint{}, errors.ErrTooFewColumns
+	}
+	
+	return cbs[2:], nil
 }
 
 func extractColumnNames(cbs []structs.ColumnBlueprint) []string {
