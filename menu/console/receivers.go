@@ -17,6 +17,7 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 		}
 
 		headers := CMHeaders{
+			Title: "=== Values ===",
 			Guidance: fmt.Sprintf("%d. %s (%s):", i, utils.PrettyColumnNameAsQuestion(cb.Name), cb.Type),
 			Error: "Answer must match type.",
 		}
@@ -48,7 +49,8 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	qTextResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsNotReserved,
 		CMHeaders{
-			Guidance: "Question:",
+			Title: "=== Column name ===",
+			Guidance: "Please enter a question.",
 			Error: "Invalid question.",
 		})
 
@@ -62,7 +64,8 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	qTypeResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsValidType,
 		CMHeaders{
-			Guidance: "Type:",
+			Title: "=== Type ===",
+			Guidance: "Please enter a type for the question (TEXT, INTEGER, REAL)",
 			Error: "Invalid type.",
 		})
 

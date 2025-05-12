@@ -107,6 +107,10 @@ func (app *App) displayTableNames() {
 func (app *App) addEntryToTable() {
 	names, err := db.TableNames(app.DB)
 	app.handleErr(err)
+	if len(names) == 0 {
+		app.splash("No tables to add to.")
+		return
+	}
 
 	validator := func(s string) bool {
 		return utils.Has(names, s)
@@ -200,10 +204,8 @@ func (app *App) loop() {
 	for {
 		res := app.CM.Input()
 		app.handleQuit(res)
-		next := app.CM.Next()	
-		if next != app.CM {
-			app.CM.SetNext(next)
-		}
+		next := app.CM.Next()
+		app.CM = next
 	}
 }
 
