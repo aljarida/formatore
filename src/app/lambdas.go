@@ -1,11 +1,11 @@
 package app
 
 import (
-	"formatore/src/db"
-	"formatore/src/utils"
-	"formatore/src/menu/console"
-	"strings"
 	"fmt"
+	"formatore/src/db"
+	"formatore/src/menu/console"
+	"formatore/src/utils"
+	"strings"
 )
 
 func (app *App) makeTable() {
@@ -64,9 +64,9 @@ func (app *App) removeTable() {
 		return
 	}
 
-	err := db.DropTable(app.DB, tableRes.Content)	
+	err := db.DropTable(app.DB, tableRes.Content)
 	app.handleErr(err)
-	
+
 	app.splashSuccess(fmt.Sprintf("Dropped table '%s'.", tableRes.Content))
 	app.setTablesPresent()
 }
@@ -113,7 +113,7 @@ func (app *App) printTablePreview() {
 		return
 	}
 
-	tableRes := app.getTableName()	
+	tableRes := app.getTableName()
 	if tableRes.Back() {
 		return
 	}

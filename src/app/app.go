@@ -5,27 +5,27 @@ import (
 	"formatore/src/db"
 	"formatore/src/enums"
 	"formatore/src/io"
-	"formatore/src/utils"
 	"formatore/src/menu/console"
+	"formatore/src/utils"
 	"os"
 )
 
 type App struct {
-	DB *sql.DB
-	CM *consolemenu.ConsoleMenu
+	DB            *sql.DB
+	CM            *consolemenu.ConsoleMenu
 	tablesPresent bool
 }
 
 func (app *App) setMainMenuOptions() {
 	utils.Assert(app.CM != nil, "CM must be initialized.")
 	options := map[string]func(){
-		"Make table":      func() { app.makeTable() },
-		"Show tables":     func() { app.displayTableNames() },
-		"Add entry to table":       func() { app.addEntryToTable() },
-		"Remove table":    func() { app.removeTable() },
-		"Preview table":         func() { app.printTablePreview() },
-		"Export table to CSV":   func() { app.exportToCSV() },
-		"Quit":  func() { os.Exit(1) },
+		"Make table":          func() { app.makeTable() },
+		"Show tables":         func() { app.displayTableNames() },
+		"Add entry to table":  func() { app.addEntryToTable() },
+		"Remove table":        func() { app.removeTable() },
+		"Preview table":       func() { app.printTablePreview() },
+		"Export table to CSV": func() { app.exportToCSV() },
+		"Quit":                func() { os.Exit(1) },
 	}
 	app.CM.SetOptions(options)
 }

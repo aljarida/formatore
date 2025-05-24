@@ -42,9 +42,8 @@ func (app *App) getTableName() io.StringResponse {
 		Controls: "Navigation: (q)uit -- (b)ack --",
 	}, app.tableNames())
 
-
 	app.handleErrAndQuit(err, tableRes.Status)
-	
+
 	return tableRes
 }
 
@@ -55,7 +54,7 @@ func (app *App) tableNames() string {
 	var builder strings.Builder
 	for i, n := range names {
 		var fmter string
-		if i == len(names) - 1 {
+		if i == len(names)-1 {
 			fmter = "%s\n"
 		} else {
 			fmter = "%s"
@@ -64,7 +63,6 @@ func (app *App) tableNames() string {
 	}
 	return builder.String()
 }
-
 
 func (app *App) splash(body string, title string) {
 	res, err := app.CM.StringResponseViaNewMenu(
