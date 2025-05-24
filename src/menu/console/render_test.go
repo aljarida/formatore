@@ -34,5 +34,10 @@ func TestDisplay(t *testing.T) {
 
 	cm.Render()
 	out = cm.io.O.(*io.MockOutput).Data
-	assert.Equal(t, []string{"Options:\n", "(E)\n", "A\n", "B\n", "C\n", "D\n"}, out)
+	assert.Equal(t, []string{"A\n", "B\n", "C\n", "Options:\n", "(E)\n"}, out)
+
+	cm.errorState = true
+	cm.Render()
+	out = cm.io.O.(*io.MockOutput).Data
+	assert.Equal(t, []string{"A\n", "B\n", "C\n", "D\n", "Options:\n", "(E)\n"}, out)
 }

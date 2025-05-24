@@ -31,7 +31,6 @@ func (cm *ConsoleMenu) Input() io.ResponseStatus {
 
 	response, err := cm.loopUntilValidResponse(
 		isValid,
-		cm.headers,
 	)
 
 	utils.Assert(

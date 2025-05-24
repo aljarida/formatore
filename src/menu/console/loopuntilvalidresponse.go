@@ -9,9 +9,7 @@ import (
 const errorThreshold int = 100
 
 // NOTE: Function only returns content with InputDone.
-func (cm *ConsoleMenu) loopUntilValidResponse(
-	validator func(string) bool,
-	hs CMHeaders) (io.StringResponse, error) {
+func (cm *ConsoleMenu) loopUntilValidResponse(validator func(string) bool) (io.StringResponse, error) {
 	if validator == nil {
 		return io.StringResponse{}, errors.ErrNeedValidator
 	}
@@ -62,6 +60,6 @@ func (cm *ConsoleMenu) StringResponseViaNewMenu(validator func(string) bool, hs 
 		io:      cm.io,
 		body:    utils.JoinStrArrWith(body, "\n"),
 	})
-	res, err := other.loopUntilValidResponse(validator, hs)
+	res, err := other.loopUntilValidResponse(validator)
 	return res, err
 }
