@@ -1,8 +1,8 @@
 package consolemenu
 
 import (
-	"formatore/utils"
 	"formatore/io"
+	"formatore/utils"
 	"strings"
 )
 
@@ -11,20 +11,20 @@ func (cm *ConsoleMenu) Read() (string, error) {
 }
 
 type CMHeaders struct {
-	Title string
+	Title    string
 	Guidance string
 	Controls string
-	Error string
+	Error    string
 }
 
 type ConsoleMenu struct {
-	headers CMHeaders // UI textual displays, called on each Render().
-	body string // Primary text.
-	options map[string]func() // Functions which may be called.
+	headers            CMHeaders         // UI textual displays, called on each Render().
+	body               string            // Primary text.
+	options            map[string]func() // Functions which may be called.
 	charsToOptionNames map[string]string // Example: 'q' -> "quit" => options["quit"] -> quitFn().
 
-	io *io.IO // IO for obtaining and sending messages.
-	choice string // Stores user response after obtaining input.
+	io         *io.IO // IO for obtaining and sending messages.
+	choice     string // Stores user response after obtaining input.
 	errorState bool
 
 	next, parent *ConsoleMenu // Links to prior menu and next menu.
@@ -38,7 +38,7 @@ func InitConsoleMenu(cm *ConsoleMenu) *ConsoleMenu {
 }
 
 func (cm *ConsoleMenu) initCharsToOptionNames() {
- 	numOptions := len(cm.options)
+	numOptions := len(cm.options)
 	charsToOptionNames := make(map[string]string, numOptions)
 
 	for optName := range cm.options {

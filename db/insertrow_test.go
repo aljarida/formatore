@@ -1,14 +1,15 @@
 package db
 
 import (
-	"testing"
-	"reflect"
 	"database/sql"
-	"formatore/structs"
 	"formatore/enums"
+	"formatore/structs"
+	"reflect"
+	"testing"
 )
 
 const testTableName = "MY_TABLE"
+
 var expectedCbs = []structs.ColumnBlueprint{
 	{Name: enums.PKeyFieldName, Type: enums.Integer},
 	{Name: enums.UnixDataTimeFieldName, Type: enums.Integer},
@@ -25,11 +26,11 @@ func setupTable(t *testing.T, db *sql.DB) {
 	}
 
 	tb := structs.TableBlueprint{
-		Name: testTableName,
+		Name:             testTableName,
 		ColumnBlueprints: cbs,
 	}
 
-	createTestTable(t, db, tb)	
+	createTestTable(t, db, tb)
 }
 
 func TestExtractColumnNames(t *testing.T) {
@@ -42,7 +43,7 @@ func TestExtractColumnNames(t *testing.T) {
 	}
 	result := extractColumnNames(expectedCbs)
 	if !reflect.DeepEqual(result, expected) {
-		t.Logf("Lengths of lists are %d and %d:", len(expected), len(result)) 
+		t.Logf("Lengths of lists are %d and %d:", len(expected), len(result))
 		t.Fatalf("Expected %v but got %v.", expected, result)
 	}
 
@@ -59,12 +60,11 @@ func TestColumnBlueprints(t *testing.T) {
 	setupTable(t, db)
 	defer dropTestTable(t, db, testTableName)
 
-
 	result, err := ColumnBlueprints(db, testTableName)
 	if err != nil {
 		t.Fatalf("Error obtaining columns: ~%v~.", err)
 	}
-	
+
 	if !reflect.DeepEqual(expectedCbs, result) {
 		t.Fatalf("Expected `%v` but got `%v`.", expectedCbs, result)
 	}

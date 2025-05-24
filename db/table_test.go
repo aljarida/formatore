@@ -30,7 +30,7 @@ func TestColumnBlueprintsToQueryComp(t *testing.T) {
 
 func TestMakeCreateQuery(t *testing.T) {
 	tb := structs.TableBlueprint{
-		Name: "test_table",
+		Name:             "test_table",
 		ColumnBlueprints: []structs.ColumnBlueprint{{Name: "col_1", Type: enums.Text}},
 	}
 	expected := utils.JoinStrings(
@@ -47,7 +47,7 @@ func TestMakeCreateQuery(t *testing.T) {
 func TestCreateTable(t *testing.T) {
 	db := connectToTestDB(t)
 	tb := structs.TableBlueprint{
-		Name: "test_table",
+		Name:             "test_table",
 		ColumnBlueprints: []structs.ColumnBlueprint{{Name: "col_1", Type: "text"}},
 	}
 	createTestTable(t, db, tb)
@@ -56,15 +56,15 @@ func TestCreateTable(t *testing.T) {
 
 func TestDropTable(t *testing.T) {
 	db := connectToTestDB(t)
-	
+
 	tableName := "table_to_drop"
 	tb := structs.TableBlueprint{
-		Name: tableName,
+		Name:             tableName,
 		ColumnBlueprints: []structs.ColumnBlueprint{{Name: "col 1", Type: "text"}},
 	}
 
 	createTestTable(t, db, tb)
-	
+
 	tableNames, err := TableNames(db)
 	if err != nil {
 		t.Fatal(err)
@@ -75,7 +75,7 @@ func TestDropTable(t *testing.T) {
 	}
 
 	dropTestTable(t, db, tb.Name)
-	
+
 	tableNames, err = TableNames(db)
 	if err != nil {
 		t.Fatal(err)
@@ -91,7 +91,7 @@ func createManyTables(t *testing.T, db *sql.DB, names []string) {
 	cbs := []structs.ColumnBlueprint{{Name: "col_1", Type: enums.Text}}
 	for _, n := range names {
 		tb := structs.TableBlueprint{
-			Name: n,
+			Name:             n,
 			ColumnBlueprints: cbs,
 		}
 		err := CreateTable(db, tb)
@@ -116,7 +116,7 @@ func TestDropAllTables(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error obtaining table names: ~%v~.", err)
 	}
-	
+
 	if len(existingTables) > 0 {
 		t.Fatalf("Failed to drop tables: `%v`.", existingTables)
 	}

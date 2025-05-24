@@ -8,6 +8,6 @@ type ColumnBlueprint struct {
 
 // Stores a table's name and its column's column blueprints.
 type TableBlueprint struct {
-	Name string
-	ColumnBlueprints []ColumnBlueprint 
+	Name             string
+	ColumnBlueprints []ColumnBlueprint
 }

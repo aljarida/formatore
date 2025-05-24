@@ -2,15 +2,15 @@ package consolemenu
 
 import (
 	"formatore/enums"
-	"formatore/structs"
 	"formatore/io"
-	"testing"
+	"formatore/structs"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 // TODO: Test MockOutput results.
 func TestGetQuestion(t *testing.T) {
-	expectedN := "What?" 
+	expectedN := "What?"
 	expectedT := enums.Text
 	mockIO := &io.IO{
 		I: &io.MockInput{Data: []string{"NULL", "PRAGMA", "JOIN", expectedN, "SELECT", expectedT}},
@@ -28,7 +28,7 @@ func TestGetQuestion(t *testing.T) {
 	res, err = cm.getQuestion()
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputQuit, res.Status, "Should be equal.")
-	
+
 	res, err = cm.getQuestion()
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputDone, res.Status, "Should be equal.")
@@ -41,8 +41,8 @@ func TestGetQuestions(t *testing.T) {
 	q2 := "q2"
 	t2 := enums.Text
 	input := []string{q1, t1,
-					  q2, t2,
-					  enums.DONE_TOKENS[0]}
+		q2, t2,
+		enums.DONE_TOKENS[0]}
 	mockIO := &io.IO{
 		I: &io.MockInput{Data: input},
 		O: &io.MockOutput{},
@@ -63,8 +63,8 @@ func TestGetQuestions(t *testing.T) {
 	res, err = cm.GetQuestions()
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputUserError, res.Status, "Should be equal.")
-	
-	// Test set 3:	
+
+	// Test set 3:
 	input = []string{q1, t1, enums.QUIT_TOKENS[0]}
 	setInputData(t, cm, input)
 	res, err = cm.GetQuestions()

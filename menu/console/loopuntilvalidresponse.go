@@ -10,8 +10,8 @@ const errorThreshold int = 100
 
 // NOTE: Function only returns content with InputDone.
 func (cm *ConsoleMenu) loopUntilValidResponse(
-		validator func(string) bool,
-		hs CMHeaders) (io.StringResponse, error) {
+	validator func(string) bool,
+	hs CMHeaders) (io.StringResponse, error) {
 	if validator == nil {
 		return io.StringResponse{}, errors.ErrNeedValidator
 	}
@@ -24,7 +24,7 @@ func (cm *ConsoleMenu) loopUntilValidResponse(
 		input, err := cm.Read()
 		if err != nil {
 			return res, err
-		}	
+		}
 
 		// TODO: This 3-case InputIs switch can and should be refactored.
 		if io.InputIsDone(input) { // In the event this (looping) function is called in a loop.
@@ -58,9 +58,9 @@ func (cm *ConsoleMenu) loopUntilValidResponse(
 func (cm *ConsoleMenu) StringResponseViaNewMenu(validator func(string) bool, hs CMHeaders, body ...string) (io.StringResponse, error) {
 	other := InitConsoleMenu(&ConsoleMenu{
 		headers: hs,
-		parent: cm,
-		io: cm.io,
-		body: utils.JoinStrArrWith(body, "\n"),
+		parent:  cm,
+		io:      cm.io,
+		body:    utils.JoinStrArrWith(body, "\n"),
 	})
 	res, err := other.loopUntilValidResponse(validator, hs)
 	return res, err

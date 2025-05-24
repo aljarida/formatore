@@ -1,9 +1,9 @@
 package io
 
 import (
+	"formatore/enums"
 	"formatore/structs"
 	"formatore/utils"
-	"formatore/enums"
 )
 
 type ResponseStatus int

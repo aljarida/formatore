@@ -2,11 +2,11 @@ package consolemenu
 
 import (
 	"formatore/enums"
-	"formatore/utils"
 	"formatore/errors"
 	"formatore/io"
-	"testing"
+	"formatore/utils"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestLoopUntilValidResponse(t *testing.T) {
@@ -23,7 +23,7 @@ func TestLoopUntilValidResponse(t *testing.T) {
 	assert.Equal(t, expected, res.Content, "Should be equal.")
 	assert.Equal(t, io.InputOkay, res.Status, "Should be equal.")
 
-	setInputData(t, cm, []string{"NULL", expected}) 
+	setInputData(t, cm, []string{"NULL", expected})
 	res, err = cm.loopUntilValidResponse(utils.IsNotReserved, emptyHs)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, expected, res.Content, "Should be equal.")
@@ -35,22 +35,22 @@ func TestLoopUntilValidResponse(t *testing.T) {
 	res, err = cm.loopUntilValidResponse(utils.IsNotReserved, emptyHs)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputQuit, res.Status, "Should be equal.")
-	
+
 	setInputData(t, cm, []string{enums.DONE_TOKENS[0]})
 	res, err = cm.loopUntilValidResponse(utils.IsNotReserved, emptyHs)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputDone, res.Status, "Should be equal.")
 
-	setInputData(t, cm, make([]string, errorThreshold + 1))
+	setInputData(t, cm, make([]string, errorThreshold+1))
 	notEmpty := func(s string) bool { return s != "" }
 	_, err = cm.loopUntilValidResponse(notEmpty, emptyHs)
 	assert.ErrorIs(t, errors.ErrTooManyInvalidResponses, err)
 
 	setInputData(t, cm, []string{"a"})
-	empty := func(s string) bool { return s == "" }	
+	empty := func(s string) bool { return s == "" }
 	testHeaders := CMHeaders{
 		Guidance: "X",
-		Error: "Y",
+		Error:    "Y",
 	}
 	_, _ = cm.loopUntilValidResponse(empty, testHeaders)
 	assert.Equal(t, "X", cm.headers.Guidance)

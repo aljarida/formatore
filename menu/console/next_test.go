@@ -1,9 +1,9 @@
 package consolemenu
 
 import (
-	"testing"
 	"formatore/io"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestNext(t *testing.T) {
@@ -16,7 +16,7 @@ func TestNext(t *testing.T) {
 
 	cm.Input()
 	next := cm.Next()
-	assert.Equal(t, 1, test_int)	
+	assert.Equal(t, 1, test_int)
 	assert.Equal(t, cm, next)
 
 	new_cm := mockConsoleMenuWithStrArr([]string{})
@@ -32,7 +32,7 @@ func TestNext(t *testing.T) {
 	res := cm.Input()
 	assert.Equal(t, cm.choice, "")
 	assert.Equal(t, io.InputDone, res)
-	
+
 	res = cm.Input()
 	assert.Equal(t, io.InputQuit, res)
 }

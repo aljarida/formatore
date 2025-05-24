@@ -1,11 +1,11 @@
 package consolemenu
 
 import (
-	"testing"
 	"formatore/enums"
 	"formatore/io"
 	"formatore/structs"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestMakeTableBlueprint(t *testing.T) {
@@ -24,7 +24,7 @@ func TestMakeTableBlueprint(t *testing.T) {
 
 	cbs := []structs.ColumnBlueprint{{Name: q1, Type: t1}, {Name: q2, Type: t2}}
 	expected := structs.TableBlueprint{
-		Name: tableName,
+		Name:             tableName,
 		ColumnBlueprints: cbs,
 	}
 	res, err := cm.MakeTableBlueprint()

@@ -1,15 +1,15 @@
 package db
 
 import (
-    "database/sql"
-    "encoding/csv"
-    "fmt"
-    "os"
-	"strings"
-    "path/filepath"
+	"database/sql"
+	"encoding/csv"
+	"fmt"
 	"formatore/utils"
+	"os"
+	"path/filepath"
+	"strings"
 
-    _ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func createSiblingFolder(folderName string) (string, error) {
@@ -27,39 +27,39 @@ func createSiblingFolder(folderName string) (string, error) {
 }
 
 func fileExists(path string) bool {
-    if info, err := os.Stat(path); err == nil {
-        return !info.IsDir()
-    } else if os.IsNotExist(err) {
-        return false
-    } else {
+	if info, err := os.Stat(path); err == nil {
+		return !info.IsDir()
+	} else if os.IsNotExist(err) {
+		return false
+	} else {
 		return true
 	}
 }
 
 func writeHeadersAndRowsToCSV(filePath string, headers []string, rows [][]string) error {
-    f, err := os.Create(filePath)
-    if err != nil {
-        return err
-    }
-    defer f.Close()
+	f, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-    w := csv.NewWriter(f)
-    if err := w.Write(headers); err != nil {
-        return err
-    }
+	w := csv.NewWriter(f)
+	if err := w.Write(headers); err != nil {
+		return err
+	}
 
-    for _, row := range rows {
-        if err := w.Write(row); err != nil {
-            return err
-        }
-    }
+	for _, row := range rows {
+		if err := w.Write(row); err != nil {
+			return err
+		}
+	}
 
 	w.Flush()
 	return w.Error()
 }
 
 func ExportTableToCSV(db *sql.DB, tableName string, fileName string) error {
-    utils.Assert(strings.HasSuffix(fileName, ".csv"), "Filename should have '.csv' extension.")
+	utils.Assert(strings.HasSuffix(fileName, ".csv"), "Filename should have '.csv' extension.")
 
 	exportFolderPath, err := createSiblingFolder("csvs")
 	if err != nil {
@@ -71,52 +71,52 @@ func ExportTableToCSV(db *sql.DB, tableName string, fileName string) error {
 		return fmt.Errorf("File already exists at '%s'.", exportFilePath)
 	}
 
-    cbs, err := ColumnBlueprints(db, tableName)
-    if err != nil {
-        return err
-    }
+	cbs, err := ColumnBlueprints(db, tableName)
+	if err != nil {
+		return err
+	}
 
 	n := len(cbs)
 	utils.Assert(n > 0, "Expected more than zero columns.")
 
-    headers := make([]string, n)
-    for i, cb := range cbs {
-        headers[i] = cb.Name
-    }
+	headers := make([]string, n)
+	for i, cb := range cbs {
+		headers[i] = cb.Name
+	}
 
-    query := fmt.Sprintf(
-        "SELECT %s FROM %s",
-        utils.JoinWithCommasSpaces(headers),
-        tableName,
-    )
+	query := fmt.Sprintf(
+		"SELECT %s FROM %s",
+		utils.JoinWithCommasSpaces(headers),
+		tableName,
+	)
 
-    scanFn := func(rows *sql.Rows) ([]string, error) {
-        data := make([]interface{}, n)
-        ptrs := make([]interface{}, n)
-        for i := range data {
-            ptrs[i] = &data[i]
-        }
+	scanFn := func(rows *sql.Rows) ([]string, error) {
+		data := make([]interface{}, n)
+		ptrs := make([]interface{}, n)
+		for i := range data {
+			ptrs[i] = &data[i]
+		}
 
-        if err := rows.Scan(ptrs...); err != nil {
-            return nil, err
-        }
+		if err := rows.Scan(ptrs...); err != nil {
+			return nil, err
+		}
 
-        out := make([]string, n)
-        for i, v := range data {
-            if v == nil {
-                out[i] = ""
-            } else {
-                out[i] = fmt.Sprintf("%v", v)
-            }
-        }
+		out := make([]string, n)
+		for i, v := range data {
+			if v == nil {
+				out[i] = ""
+			} else {
+				out[i] = fmt.Sprintf("%v", v)
+			}
+		}
 
-        return out, nil
-    }
+		return out, nil
+	}
 
-    rowData, err := queryAndScan(db, query, scanFn)
-    if err != nil {
-        return err
-    }
+	rowData, err := queryAndScan(db, query, scanFn)
+	if err != nil {
+		return err
+	}
 
 	return writeHeadersAndRowsToCSV(exportFilePath, headers, rowData)
 }

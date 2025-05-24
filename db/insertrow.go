@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"formatore/errors"
 	"formatore/structs"
 	"formatore/utils"
-	"formatore/errors"
 )
 
 func ColumnBlueprints(db *sql.DB, tableName string) ([]structs.ColumnBlueprint, error) {
@@ -27,7 +27,7 @@ func CBsModuloAutogenCols(db *sql.DB, tableName string) ([]structs.ColumnBluepri
 	if len(cbs) < 2 {
 		return []structs.ColumnBlueprint{}, errors.ErrTooFewColumns
 	}
-	
+
 	return cbs[2:], nil
 }
 
@@ -60,7 +60,7 @@ func InsertRow(db *sql.DB, tableName string, values []string) error {
 		return err
 	}
 
-	columnNames, err := extractColumnNamesModuloID(cbs) 
+	columnNames, err := extractColumnNamesModuloID(cbs)
 	if err != nil {
 		return err
 	}

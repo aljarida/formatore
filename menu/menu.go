@@ -5,9 +5,7 @@ import (
 )
 
 type Menu interface {
-	Render() 
+	Render()
 	Input() io.ResponseStatus
 	Next() *Menu
 }
-
-

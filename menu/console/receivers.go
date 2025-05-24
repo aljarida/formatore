@@ -1,10 +1,10 @@
 package consolemenu
 
 import (
-	"formatore/utils"
-	"formatore/structs"
-	"formatore/io"
 	"fmt"
+	"formatore/io"
+	"formatore/structs"
+	"formatore/utils"
 )
 
 func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayResponse, error) {
@@ -17,9 +17,9 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 		}
 
 		headers := CMHeaders{
-			Title: "=== Values ===",
+			Title:    "=== Values ===",
 			Guidance: fmt.Sprintf("%d. %s (%s):", i, utils.PrettyColumnNameAsQuestion(cb.Name), cb.Type),
-			Error: "Answer must match type.",
+			Error:    "Answer must match type.",
 		}
 
 		strRes, err := cm.StringResponseViaNewMenu(valdator, headers)
@@ -49,9 +49,9 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	qTextResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsNotReserved,
 		CMHeaders{
-			Title: "=== Column name ===",
+			Title:    "=== Column name ===",
 			Guidance: "Please enter a question.",
-			Error: "Invalid question.",
+			Error:    "Invalid question.",
 		})
 
 	if qTextResponse.Done() || qTextResponse.Quit() {
@@ -64,9 +64,9 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	qTypeResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsValidType,
 		CMHeaders{
-			Title: "=== Type ===",
+			Title:    "=== Type ===",
 			Guidance: "Please enter a type for the question (TEXT, INTEGER, REAL)",
-			Error: "Invalid type.",
+			Error:    "Invalid type.",
 		})
 
 	if qTypeResponse.Done() || qTextResponse.Quit() {
@@ -94,7 +94,7 @@ func (cm *ConsoleMenu) GetQuestions() (io.ColumnBlueprintsResponse, error) {
 		if questionRes.Done() && len(questions) > 0 {
 			cbsRes.Status = io.InputOkay
 			cbsRes.Content = questions
- 			return cbsRes, nil
+			return cbsRes, nil
 		} else if questionRes.Done() && len(questions) == 0 {
 			cbsRes.Status = io.InputUserError
 			return cbsRes, nil
@@ -109,4 +109,3 @@ func (cm *ConsoleMenu) GetQuestions() (io.ColumnBlueprintsResponse, error) {
 		}
 	}
 }
-

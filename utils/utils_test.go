@@ -1,13 +1,13 @@
 package utils
 
 import (
-	"time"
-	"testing"
 	"formatore/enums"
 	"github.com/stretchr/testify/assert"
+	"testing"
+	"time"
 )
 
-func TestJoinStrings (t *testing.T) {
+func TestJoinStrings(t *testing.T) {
 	a := "A"
 	b := "B"
 	c := "C"
@@ -36,7 +36,7 @@ func TestIsReserved(t *testing.T) {
 	if expected != result {
 		t.Fatal()
 	}
-	
+
 	expected = false
 	result = IsReserved("DOLLARS")
 	if expected != result {
@@ -113,9 +113,9 @@ func TestInferType(t *testing.T) {
 		enums.Text, enums.Text,
 		enums.Real, enums.Real,
 		enums.Real, enums.Real,
-		enums.Text, enums.Text,	
 		enums.Text, enums.Text,
-		enums.Integer, enums.Real, 
+		enums.Text, enums.Text,
+		enums.Integer, enums.Real,
 		enums.Real, enums.Real,
 		enums.Text, enums.Text,
 		enums.Text, enums.Text,
@@ -133,12 +133,12 @@ func TestInferType(t *testing.T) {
 func TestMap(t *testing.T) {
 	addOne := func(i int) int { return i + 1 }
 
-	arr1 := []int{1,2,3,4,5}
-	expected1 := []int{2,3,4,5,6}
+	arr1 := []int{1, 2, 3, 4, 5}
+	expected1 := []int{2, 3, 4, 5, 6}
 	actual1 := Map(arr1, addOne)
 	assert.Equal(t, expected1, actual1, "Should be equal.")
 
-	arr2 := []int{}	
+	arr2 := []int{}
 	expected2 := []int{}
 	actual2 := Map(arr2, addOne)
 	assert.Equal(t, expected2, actual2, "Should be equal.")
@@ -164,7 +164,7 @@ func TestParenthesizeFirstChar(t *testing.T) {
 func TestPrettyColumnNameAsQuestion(t *testing.T) {
 	s := PrettyColumnNameAsQuestion("a_b_c_d")
 	assert.Equal(t, "A b c d[?]", s)
-	
+
 	s = PrettyColumnNameAsQuestion("")
 	assert.Equal(t, "[?]", s)
 }

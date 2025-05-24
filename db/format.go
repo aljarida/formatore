@@ -1,8 +1,8 @@
 package db
 
 import (
-	"strings"
 	"formatore/structs"
+	"strings"
 )
 
 // Return name without spaces in lowercase.

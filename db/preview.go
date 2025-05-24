@@ -2,9 +2,9 @@ package db
 
 import (
 	"bytes"
-    "database/sql"
-    "fmt"
-    "text/tabwriter"
+	"database/sql"
+	"fmt"
+	"text/tabwriter"
 )
 
 func printRow(tw *tabwriter.Writer, raws []sql.RawBytes) {
@@ -22,52 +22,52 @@ func printRow(tw *tabwriter.Writer, raws []sql.RawBytes) {
 }
 
 func printCols(tw *tabwriter.Writer, cols []string) {
-    for i, col := range cols {
-        if i > 0 {
-            fmt.Fprint(tw, "\t")
-        }
-        fmt.Fprint(tw, col)
-    }
-    fmt.Fprintln(tw)
+	for i, col := range cols {
+		if i > 0 {
+			fmt.Fprint(tw, "\t")
+		}
+		fmt.Fprint(tw, col)
+	}
+	fmt.Fprintln(tw)
 }
 
 func PreviewLastN(db *sql.DB, table string, n int) (string, error) {
-    query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC LIMIT %d", table, n)
-    rows, err := db.Query(query)
-    if err != nil {
-        return "", err
-    }
-    defer rows.Close()
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC LIMIT %d", table, n)
+	rows, err := db.Query(query)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
 
-    cols, err := rows.Columns()
-    if err != nil {
-        return "", err
-    }
+	cols, err := rows.Columns()
+	if err != nil {
+		return "", err
+	}
 
-    var buf bytes.Buffer
-    tw := tabwriter.NewWriter(&buf, 0, 4, 2, ' ', 0)
+	var buf bytes.Buffer
+	tw := tabwriter.NewWriter(&buf, 0, 4, 2, ' ', 0)
 
 	printCols(tw, cols)
 
-    vals := make([]interface{}, len(cols))
-    raws := make([]sql.RawBytes, len(cols))
-    for i := range vals {
-        vals[i] = &raws[i]
-    }
+	vals := make([]interface{}, len(cols))
+	raws := make([]sql.RawBytes, len(cols))
+	for i := range vals {
+		vals[i] = &raws[i]
+	}
 
-    for rows.Next() {
-        if err := rows.Scan(vals...); err != nil {
-            return "", err
-        }
+	for rows.Next() {
+		if err := rows.Scan(vals...); err != nil {
+			return "", err
+		}
 		printRow(tw, raws)
-    }
+	}
 
-    if err := rows.Err(); err != nil {
-        return "", err
-    }
+	if err := rows.Err(); err != nil {
+		return "", err
+	}
 
-    if err := tw.Flush(); err != nil {
-        return "", err
-    }
-    return buf.String(), nil
+	if err := tw.Flush(); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }

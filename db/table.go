@@ -3,10 +3,10 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"strings"
-	"formatore/utils"
 	"formatore/enums"
 	"formatore/structs"
+	"formatore/utils"
+	"strings"
 )
 
 // Return formatted schema string for use in SQL queries.
@@ -14,11 +14,11 @@ import (
 func columnBlueprintsToQueryComp(cbs []structs.ColumnBlueprint) string {
 	var builder strings.Builder
 	for i, cb := range cbs {
-		n, t := cb.Name, cb.Type 
+		n, t := cb.Name, cb.Type
 		fmtStr := "%s %s, "
-		if i == len(cbs) - 1 {
+		if i == len(cbs)-1 {
 			fmtStr = "%s %s"
-		} 
+		}
 
 		formattedComp := fmt.Sprintf(fmtStr, n, t)
 		builder.WriteString(formattedComp)
@@ -33,11 +33,11 @@ func makeCreateQuery(tb structs.TableBlueprint) string {
 	intro := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ", tb.Name)
 	body := columnBlueprintsToQueryComp(tb.ColumnBlueprints)
 	return utils.JoinStrings(intro,
-				"(",
-				enums.PKeyComp,
-				enums.UnixDatetimeComp,
-				body,
-				");")
+		"(",
+		enums.PKeyComp,
+		enums.UnixDatetimeComp,
+		body,
+		");")
 }
 
 // Create a table from a provided TableBlueprint.
@@ -69,8 +69,8 @@ func TableNames(db *sql.DB) ([]string, error) {
 	return queryAndScan(db, query, scanFn)
 }
 
-func DropAllTables(db * sql.DB) error {
-	tableNames, err := TableNames(db) 
+func DropAllTables(db *sql.DB) error {
+	tableNames, err := TableNames(db)
 	if err != nil {
 		return err
 	}

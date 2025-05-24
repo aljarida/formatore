@@ -1,8 +1,8 @@
 package io
 
 import (
-	"formatore/enums"
 	"fmt"
+	"formatore/enums"
 )
 
 type OutputDisplay interface {
@@ -13,6 +13,7 @@ type OutputDisplay interface {
 
 // Console output implementation
 type FmtOutput struct{}
+
 func (o *FmtOutput) Display(s string) {
 	fmt.Print(s)
 }
@@ -30,6 +31,7 @@ func (o *FmtOutput) ClearThenDisplay(s string) {
 type MockOutput struct {
 	Data []string
 }
+
 func (m *MockOutput) Display(s string) {
 	m.Data = append(m.Data, s)
 }

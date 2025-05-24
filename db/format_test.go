@@ -1,9 +1,9 @@
 package db
 
 import (
-	"testing"
-	"reflect"
 	"formatore/structs"
+	"reflect"
+	"testing"
 )
 
 func TestFormatCBName(t *testing.T) {

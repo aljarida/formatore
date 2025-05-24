@@ -2,8 +2,8 @@ package consolemenu
 
 import (
 	"formatore/io"
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestMatchUserInput(t *testing.T) {
@@ -32,7 +32,6 @@ func TestInput(t *testing.T) {
 	responseStatus := cm.Input()
 	assert.Equal(t, io.InputOkay, responseStatus)
 	assert.Equal(t, "t", cm.choice)
-
 
 	cm.choice = ""
 	responseStatus = cm.Input()

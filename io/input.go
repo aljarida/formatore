@@ -5,27 +5,27 @@ import (
 	"os"
 )
 
-
 type InputReader interface {
 	Read() (string, error)
 }
 
 // Console implementation
 type FmtInput struct{}
+
 func (r *FmtInput) Read() (string, error) {
 	reader := bufio.NewReader(os.Stdin)
-    response, err := reader.ReadString('\n') // Read until newline.
-    if err != nil {
-        return "", err
-    }
+	response, err := reader.ReadString('\n') // Read until newline.
+	if err != nil {
+		return "", err
+	}
 
-    // Remove the trailing newline character
-    response = response[:len(response)-1]
-    return response, nil
+	// Remove the trailing newline character
+	response = response[:len(response)-1]
+	return response, nil
 }
 
 // Mock implementation
-type MockInput struct{
+type MockInput struct {
 	Data []string
 }
 
@@ -40,5 +40,5 @@ func (m *MockInput) Read() (string, error) {
 }
 
 func (m *MockInput) SetData(s []string) {
-	m.Data = s	
+	m.Data = s
 }

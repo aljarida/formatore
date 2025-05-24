@@ -20,7 +20,6 @@ func (cm *ConsoleMenu) clearScreen() {
 	cm.io.O.ClearScreen()
 }
 
-
 func (cm *ConsoleMenu) headersPrinterFn() {
 	if cm.headers.Title != "" {
 		cm.Displayln(cm.headers.Title)
@@ -40,7 +39,7 @@ func (cm *ConsoleMenu) optionsPrinterFn() {
 	if len(cm.options) == 0 {
 		return
 	}
-	
+
 	sortedKeys := utils.GetSortedKeys(cm.options)
 
 	cm.Displayln("Options:")

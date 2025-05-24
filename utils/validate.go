@@ -2,8 +2,8 @@ package utils
 
 import (
 	"fmt"
-	"formatore/structs"
 	"formatore/enums"
+	"formatore/structs"
 )
 
 // Validates that the table name is not empty.

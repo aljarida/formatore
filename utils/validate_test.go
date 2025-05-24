@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"testing"
-	"formatore/structs"
 	"formatore/enums"
+	"formatore/structs"
+	"testing"
 )
 
 var metadata = []structs.ColumnBlueprint{
@@ -17,7 +17,7 @@ var metadata = []structs.ColumnBlueprint{
 func TestValidateTableBlueprint(t *testing.T) {
 	var err error
 	tbValid := structs.TableBlueprint{
-		Name: "test_table",
+		Name:             "test_table",
 		ColumnBlueprints: []structs.ColumnBlueprint{{Name: "col_1", Type: enums.Text}},
 	}
 	err = ValidateTableBlueprint(tbValid)
@@ -32,7 +32,7 @@ func TestValidateTableBlueprint(t *testing.T) {
 	}
 
 	tbNoName := structs.TableBlueprint{
-		Name: "",
+		Name:             "",
 		ColumnBlueprints: []structs.ColumnBlueprint{{Name: "col 1", Type: "TEXT"}},
 	}
 	err = ValidateTableBlueprint(tbNoName)
@@ -51,7 +51,7 @@ func TestValidateAndApostrophizeValues(t *testing.T) {
 	if values[1] != "'$'" {
 		t.Fatalf("enums.Text was not apostrophized.")
 	}
-	
+
 	values = []string{"1", "1", "1.0", "1"}
 	if err = ValidateAndApostrophizeValues(metadata, values); err == nil {
 		t.Fatalf("Executed without error despite invalid values %v: ~%v~.", values, err)

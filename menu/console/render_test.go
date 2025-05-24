@@ -26,13 +26,13 @@ func TestDisplay(t *testing.T) {
 
 	cm.options["E"] = func() {}
 	cm.headers = CMHeaders{
-		Title: "A",
+		Title:    "A",
 		Guidance: "B",
 		Controls: "C",
-		Error: "D",
+		Error:    "D",
 	}
 
 	cm.Render()
 	out = cm.io.O.(*io.MockOutput).Data
-	assert.Equal(t, []string{"Options:\n", "(E)\n", "A\n", "B\n", "C\n", "D\n"}, out) 
+	assert.Equal(t, []string{"Options:\n", "(E)\n", "A\n", "B\n", "C\n", "D\n"}, out)
 }

@@ -2,16 +2,16 @@ package consolemenu
 
 import (
 	"fmt"
-	"formatore/utils"
 	"formatore/io"
+	"formatore/utils"
 )
 
 func (cm *ConsoleMenu) matchUserInput(s string) (string, bool) {
-	specifiedFullName := func(s string) bool { 
+	specifiedFullName := func(s string) bool {
 		_, ok := cm.options[s]
 		return ok
 	}
-	
+
 	if ok := specifiedFullName(s); ok {
 		return s, ok
 	} else {
@@ -20,7 +20,6 @@ func (cm *ConsoleMenu) matchUserInput(s string) (string, bool) {
 	}
 }
 
-
 // Obtains user's next choice and stores it in cm.choice.
 // NOTE: This function affects the choice for the next option.
 func (cm *ConsoleMenu) Input() io.ResponseStatus {
@@ -28,16 +27,16 @@ func (cm *ConsoleMenu) Input() io.ResponseStatus {
 		_, optionFullExists := cm.options[s]
 		_, optionAbbrevExists := cm.charsToOptionNames[s]
 		// TODO: Strange that "InputIsBack" only appears here.
-		return optionFullExists || optionAbbrevExists 
+		return optionFullExists || optionAbbrevExists
 	}
 
 	response, err := cm.loopUntilValidResponse(
-		isValid, 
+		isValid,
 		cm.headers,
 	)
 
 	utils.Assert(
-		err == nil, 
+		err == nil,
 		fmt.Sprintf("GetStringResponse returned an unexpected error: ~%v~.", err),
 	)
 

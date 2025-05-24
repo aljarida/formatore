@@ -3,19 +3,19 @@ package utils
 import (
 	"fmt"
 	"formatore/enums"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
-	"sort"
 )
 
 // Source: https://sqlite.org/datatype3.html
 var validSQLite3Types = map[string]bool{
-	enums.Blob: true,
+	enums.Blob:    true,
 	enums.Integer: true,
-	enums.Real: true,
-	enums.Text: true,
+	enums.Real:    true,
+	enums.Text:    true,
 }
 
 // Determine if a given string is a reserved keyword.
@@ -73,7 +73,7 @@ func JoinWithCommasSpaces(values []string) string {
 }
 
 func Map[T any, R any](items []T, mapFn func(item T) R) []R {
-	res := make([]R, len(items))	
+	res := make([]R, len(items))
 	for i, item := range items {
 		res[i] = mapFn(item)
 	}
@@ -131,7 +131,7 @@ func ParenthesizeFirstChar(s string) string {
 	}
 
 	var b strings.Builder
-	b.Grow(len(s) + 2) 
+	b.Grow(len(s) + 2)
 	b.WriteRune('(')
 	b.WriteRune(rune(s[0]))
 	b.WriteRune(')')
@@ -170,7 +170,7 @@ func GetSortedKeys[T any](m map[string]T) []string {
 	for k := range m {
 		keys = append(keys, k)
 	}
-	
+
 	sort.Strings(keys)
 	return keys
 }
