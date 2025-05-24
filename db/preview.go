@@ -31,7 +31,6 @@ func printCols(tw *tabwriter.Writer, cols []string) {
     fmt.Fprintln(tw)
 }
 
-// NOTE: This code is provided by ChatGPT and can likely be cleaned up.
 func PreviewLastN(db *sql.DB, table string, n int) (string, error) {
     query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC LIMIT %d", table, n)
     rows, err := db.Query(query)

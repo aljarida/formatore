@@ -72,6 +72,7 @@ func (app *App) setMainMenuOptions() {
 		"Add entry": func() { app.addEntryToTable() },
 		"Drop all tables": func() { app.dropAllTables() },
 		"Preview": func() { app.printTablePreview() },
+		"Export to CSV": func() { app.exportToCSV() },
 		"Quit Formatore": func() { os.Exit(1) },
 		"Testing!": func() { app.splash("Testing well?!") },
 	}
@@ -149,6 +150,51 @@ func (app *App) dropAllTables() {
 	app.splash("All tables successfully dropped!")
 }
 
+func (app *App) exportToCSV() {
+	names, err := db.TableNames(app.DB)
+	app.handleErr(err)
+
+	validator := func(s string) bool {
+		return utils.Has(names, s)
+	}
+
+	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
+		Guidance: "Please enter a table name.",
+		Error: "Input must be a valid table.",
+	}, app.tableNames())
+
+	app.handleErrAndQuit(err, tableRes.Status)
+	if tableRes.Back() {
+		return
+	}
+
+	validator = func(s string) bool {
+		return s != "" && !strings.Contains(s, " ") && !strings.HasPrefix(s, ".")
+	}
+
+	fileNameRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
+		Guidance: "Please enter a file name for the output CSV.",
+		Error: "Input must be non-empty, contain no spaces, and not be prefixed by '.'.",
+	})
+	app.handleErrAndQuit(err, fileNameRes.Status)
+	if fileNameRes.Back() {
+		return
+	}
+
+	fileName := utils.MaybeAppendDotCSV(fileNameRes.Content)
+	
+	err = db.ExportTableToCSV(app.DB, tableRes.Content, fileName)
+	app.handleErr(err)
+
+	app.splash(utils.JoinStrings(
+		"Successfully exported table ",
+		tableRes.Content,
+		" to CSV file ",
+		fileName,
+		".",
+	))
+}
+
 func (app *App) printTablePreview() {
 	names, err := db.TableNames(app.DB)
 	app.handleErr(err)
@@ -161,6 +207,7 @@ func (app *App) printTablePreview() {
 		Guidance: "Please enter a table name.",
 		Error: "Input must be a valid table.",
 	}, app.tableNames())
+
 	app.handleErrAndQuit(err, tableRes.Status)
 	if tableRes.Back() {
 		return
@@ -188,11 +235,12 @@ func (app *App) printTablePreview() {
 	app.splash(preview)
 }
 
+// TODO: Modify this function to accept a title string.
 func (app *App) splash(body string) {
 	res, err := app.CM.StringResponseViaNewMenu(
 		func(s string) bool { return io.InputIsBack(s) || io.InputIsDone(s) },
 		consolemenu.CMHeaders{
-			Title: "=== Splash ===",
+			Title: "=== Splash Screen ===",
 			Controls: "(d) or (b) to go back",
 		},
 		body,

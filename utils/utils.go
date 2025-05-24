@@ -165,7 +165,6 @@ func PrettyColumnNameAsQuestion(s string) string {
 	return b.String()
 }
 
-
 func GetSortedKeys[T any](m map[string]T) []string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
@@ -174,4 +173,12 @@ func GetSortedKeys[T any](m map[string]T) []string {
 	
 	sort.Strings(keys)
 	return keys
+}
+
+func MaybeAppendDotCSV(s string) string {
+	if strings.HasSuffix(s, ".csv") {
+		return s
+	}
+
+	return s + ".csv"
 }
