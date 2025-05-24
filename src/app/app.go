@@ -21,11 +21,11 @@ func (app *App) setMainMenuOptions() {
 	options := map[string]func(){
 		"Make table":      func() { app.makeTable() },
 		"Show tables":     func() { app.displayTableNames() },
-		"Add entry":       func() { app.addEntryToTable() },
+		"Add entry to table":       func() { app.addEntryToTable() },
 		"Remove table":    func() { app.removeTable() },
-		"Preview":         func() { app.printTablePreview() },
-		"Export to CSV":   func() { app.exportToCSV() },
-		"Quit Formatore":  func() { os.Exit(1) },
+		"Preview table":         func() { app.printTablePreview() },
+		"Export table to CSV":   func() { app.exportToCSV() },
+		"Quit":  func() { os.Exit(1) },
 	}
 	app.CM.SetOptions(options)
 }
@@ -58,7 +58,7 @@ func NewApp() *App {
 		Title:    "=== FORMATORE ===",
 		Guidance: "Please choose one of the following options.",
 		Controls: "Navigation: (q)uit --",
-		Error:    "ERR.: Input must match available options!",
+		Error:    "Input must match available options!",
 	})
 
 	app.setMainMenuOptions()
