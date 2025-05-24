@@ -19,6 +19,7 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 		headers := CMHeaders{
 			Title:    "=== Values ===",
 			Guidance: fmt.Sprintf("%d. %s (%s):", i, utils.PrettyColumnNameAsQuestion(cb.Name), cb.Type),
+			Controls: "Navigation: (q)uit --",
 			Error:    "Answer must match type.",
 		}
 
@@ -42,16 +43,16 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 	return strArrRes, nil
 }
 
-// TODO: Can this function be broken up to be more DRY?
 func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	cbRes := io.ColumnBlueprintResponse{}
 
 	qTextResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsNotReserved,
 		CMHeaders{
-			Title:    "=== Column name ===",
-			Guidance: "Please enter a question.",
-			Error:    "Invalid question.",
+			Title:    "=== Column Name ===",
+			Guidance: "Please enter a column name that serve as a question.",
+			Error:    "Invalid column name.",
+			Controls: "Navigation: (q)uit --",
 		})
 
 	if qTextResponse.Done() || qTextResponse.Quit() {
@@ -67,6 +68,7 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 			Title:    "=== Type ===",
 			Guidance: "Please enter a type for the question (TEXT, INTEGER, REAL)",
 			Error:    "Invalid type.",
+			Controls: "Navigation: (q)uit --",
 		})
 
 	if qTypeResponse.Done() || qTextResponse.Quit() {

@@ -11,9 +11,9 @@ func (cm *ConsoleMenu) MakeTableBlueprint() (io.TableBlueprintResponse, error) {
 	tableNameRes, err := cm.StringResponseViaNewMenu(
 		utils.IsNotReserved,
 		CMHeaders{
-			Title:    "=== Make table ===",
+			Title:    "=== Make Table ===",
 			Guidance: "Enter a valid table name.",
-			Controls: "(q) to quit; (d) to finish adding columns",
+			Controls: "Navigation: (q)uit -- (d)one --",
 			Error:    "Invalid table name.",
 		})
 

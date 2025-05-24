@@ -15,6 +15,7 @@ import (
 type App struct {
 	DB *sql.DB
 	CM *consolemenu.ConsoleMenu
+	tablesPresent bool
 }
 
 func (app *App) handleErr(err error) {
@@ -53,15 +54,30 @@ func initializeApp() *App {
 	app.CM = cm
 	consolemenu.InitConsoleMenu(cm)
 	cm.SetHeaders(consolemenu.CMHeaders{
-		Title:    "=== Formatore ===",
+		Title:    "=== FORMATORE ===",
 		Guidance: "Please choose one of the following options.",
-		Controls: "(q) to quit.",
+		Controls: "Navigation: (q)uit --",
 		Error:    "ERR.: Input must match available options!",
 	})
 
 	app.setMainMenuOptions()
+	app.setTablesPresent()
 
 	return app
+}
+
+func (app *App) setTablesPresent() {
+	names, err := db.TableNames(app.DB)
+	app.handleErr(err)
+	app.tablesPresent = len(names) > 0
+}
+
+func (app *App) splashesNoTables() bool {
+	if !app.tablesPresent {
+		app.splash("No tables present.", "=== Failure ===")
+		return true
+	}
+	return false
 }
 
 func (app *App) setMainMenuOptions() {
@@ -70,13 +86,34 @@ func (app *App) setMainMenuOptions() {
 		"Make table":      func() { app.makeTable() },
 		"Show tables":     func() { app.displayTableNames() },
 		"Add entry":       func() { app.addEntryToTable() },
+		"Remove table":    func() { app.removeTable() },
 		"Drop all tables": func() { app.dropAllTables() },
 		"Preview":         func() { app.printTablePreview() },
 		"Export to CSV":   func() { app.exportToCSV() },
 		"Quit Formatore":  func() { os.Exit(1) },
-		"Testing!":        func() { app.splash("Testing well?!") },
 	}
 	app.CM.SetOptions(options)
+}
+
+func (app *App) getTableName() io.StringResponse {
+	names, err := db.TableNames(app.DB)
+	app.handleErr(err)
+
+	validator := func(s string) bool {
+		return utils.Has(names, s)
+	}
+
+	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
+		Title:    "=== Tables ===",
+		Guidance: "Please enter a table name.",
+		Error:    "Input must be an already existing table!",
+		Controls: "Navigation: (q)uit -- (b)ack --",
+	}, app.tableNames())
+
+
+	app.handleErrAndQuit(err, tableRes.Status)
+	
+	return tableRes
 }
 
 func (app *App) makeTable() {
@@ -88,6 +125,8 @@ func (app *App) makeTable() {
 
 	err = db.CreateTable(app.DB, tbRes.Content)
 	app.handleErr(err)
+
+	app.tablesPresent = true
 }
 
 func (app *App) tableNames() string {
@@ -96,34 +135,31 @@ func (app *App) tableNames() string {
 
 	var builder strings.Builder
 	for i, n := range names {
-		builder.WriteString(fmt.Sprintf("%d: %s\n", i+1, n))
+		var fmter string
+		if i == len(names) - 1 {
+			fmter = "%s\n"
+		} else {
+			fmter = "%s"
+		}
+		builder.WriteString(fmt.Sprintf(fmter, n))
 	}
 	return builder.String()
 }
 
 func (app *App) displayTableNames() {
-	app.splash(app.tableNames())
-}
-
-func (app *App) addEntryToTable() {
-	names, err := db.TableNames(app.DB)
-	app.handleErr(err)
-	if len(names) == 0 {
-		app.splash("No tables to add to.")
+	if app.splashesNoTables() {
 		return
 	}
 
-	validator := func(s string) bool {
-		return utils.Has(names, s)
+	app.splash(app.tableNames(), "=== Success ===")
+}
+
+func (app *App) addEntryToTable() {
+	if app.splashesNoTables() {
+		return
 	}
 
-	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
-		Title:    "=== Table title ===",
-		Guidance: "Please enter a table name",
-		Error:    "Input must be an already existing table!",
-	}, app.tableNames())
-
-	app.handleErrAndQuit(err, tableRes.Status)
+	tableRes := app.getTableName()
 	if tableRes.Back() {
 		return
 	}
@@ -140,35 +176,46 @@ func (app *App) addEntryToTable() {
 	err = db.InsertRow(app.DB, tableRes.Content, valuesRes.Content)
 	app.handleErr(err)
 
-	app.splash("Row successfully inserted!")
+	app.splash(fmt.Sprintf("Row inserted into '%s'!", tableRes.Content), "=== Success ===")
+}
+
+func (app *App) removeTable() {
+	if app.splashesNoTables() {
+		return
+	}
+
+	tableRes := app.getTableName()
+	if tableRes.Back() {
+		return
+	}
+
+	err := db.DropTable(app.DB, tableRes.Content)	
+	app.handleErr(err)
+	
+	app.splash(fmt.Sprintf("Successfully dropped table '%s'.", tableRes.Content), "=== Success ===")
+	app.setTablesPresent()
 }
 
 func (app *App) dropAllTables() {
 	err := db.DropAllTables(app.DB)
 	app.handleErr(err)
 
-	app.splash("All tables successfully dropped!")
+	app.splash("All tables dropped.", "=== Success ===")
+
+	app.tablesPresent = false
 }
 
 func (app *App) exportToCSV() {
-	names, err := db.TableNames(app.DB)
-	app.handleErr(err)
-
-	validator := func(s string) bool {
-		return utils.Has(names, s)
+	if app.splashesNoTables() {
+		return
 	}
 
-	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
-		Guidance: "Please enter a table name.",
-		Error:    "Input must be a valid table.",
-	}, app.tableNames())
-
-	app.handleErrAndQuit(err, tableRes.Status)
+	tableRes := app.getTableName()
 	if tableRes.Back() {
 		return
 	}
 
-	validator = func(s string) bool {
+	validator := func(s string) bool {
 		return s != "" && !strings.Contains(s, " ") && !strings.HasPrefix(s, ".")
 	}
 
@@ -187,33 +234,25 @@ func (app *App) exportToCSV() {
 	app.handleErr(err)
 
 	app.splash(utils.JoinStrings(
-		"Successfully exported table ",
+		"Exported table ",
 		tableRes.Content,
 		" to CSV file ",
 		fileName,
 		".",
-	))
+	), "=== Success ===")
 }
 
 func (app *App) printTablePreview() {
-	names, err := db.TableNames(app.DB)
-	app.handleErr(err)
-
-	validator := func(s string) bool {
-		return utils.Has(names, s)
+	if app.splashesNoTables() {
+		return
 	}
 
-	tableRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
-		Guidance: "Please enter a table name.",
-		Error:    "Input must be a valid table.",
-	}, app.tableNames())
-
-	app.handleErrAndQuit(err, tableRes.Status)
+	tableRes := app.getTableName()	
 	if tableRes.Back() {
 		return
 	}
 
-	validator = func(s string) bool {
+	validator := func(s string) bool {
 		_, ok := utils.IsPositiveInteger(s)
 		return ok
 	}
@@ -221,6 +260,7 @@ func (app *App) printTablePreview() {
 	nStrRes, err := app.CM.StringResponseViaNewMenu(validator, consolemenu.CMHeaders{
 		Guidance: "Number of rows (must be positive):",
 		Error:    "Must be a positive integer. Try again.",
+		Controls: "Navigation: (q)uit -- (b)ack --",
 	})
 	app.handleErrAndQuit(err, nStrRes.Status)
 	if nStrRes.Back() {
@@ -232,16 +272,15 @@ func (app *App) printTablePreview() {
 	preview, err := db.PreviewLastN(app.DB, tableRes.Content, n)
 	app.handleErr(err)
 
-	app.splash(preview)
+	app.splash(preview, fmt.Sprintf("=== Preview of '%s' ===", tableRes.Content))
 }
 
-// TODO: Modify this function to accept a title string.
-func (app *App) splash(body string) {
+func (app *App) splash(body string, title string) {
 	res, err := app.CM.StringResponseViaNewMenu(
 		func(s string) bool { return io.InputIsBack(s) || io.InputIsDone(s) },
 		consolemenu.CMHeaders{
-			Title:    "=== Splash Screen ===",
-			Controls: "(d) or (b) to go back",
+			Title:    title,
+			Controls: "Navigation: (q)uit -- (b)ack --",
 		},
 		body,
 	)

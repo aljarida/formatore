@@ -26,7 +26,6 @@ func (cm *ConsoleMenu) Input() io.ResponseStatus {
 	isValid := func(s string) bool {
 		_, optionFullExists := cm.options[s]
 		_, optionAbbrevExists := cm.charsToOptionNames[s]
-		// TODO: Strange that "InputIsBack" only appears here.
 		return optionFullExists || optionAbbrevExists
 	}
 

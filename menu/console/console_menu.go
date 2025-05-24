@@ -31,7 +31,7 @@ type ConsoleMenu struct {
 }
 
 func InitConsoleMenu(cm *ConsoleMenu) *ConsoleMenu {
-	utils.Assert(cm.options == nil, "Can not initialize an already initialized CM!")
+	utils.Assert(cm.options == nil, "Can not initialize an already initialized ConsoleMenu.")
 	cm.options = make(map[string]func(), 8)
 	utils.Assert(cm.io != nil, "IO must not be nil!")
 	return cm
@@ -44,7 +44,7 @@ func (cm *ConsoleMenu) initCharsToOptionNames() {
 	for optName := range cm.options {
 		firstChar := string(optName[0])
 		_, ok := charsToOptionNames[firstChar]
-		utils.Assert(ok == false, "There can not be two options of the same first character!")
+		utils.Assert(ok == false, "There can not be two options of the same first character.")
 
 		firstCharUpper := strings.ToUpper(firstChar)
 		charsToOptionNames[firstCharUpper] = optName
