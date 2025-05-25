@@ -9,7 +9,10 @@ import (
 )
 
 func (app *App) makeTable() {
-	tbRes, err := app.CM.MakeTableBlueprint()
+	blockedTableNames, err := db.TableNames(app.DB)
+	app.handleErr(err)
+
+	tbRes, err := app.CM.MakeTableBlueprint(blockedTableNames...)
 	app.handleErrAndQuit(err, tbRes.Status)
 	if tbRes.Back() {
 		return

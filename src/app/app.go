@@ -7,7 +7,6 @@ import (
 	"formatore/src/io"
 	"formatore/src/menu/console"
 	"formatore/src/utils"
-	"os"
 )
 
 type App struct {
@@ -25,7 +24,6 @@ func (app *App) setMainMenuOptions() {
 		"Remove table":        func() { app.removeTable() },
 		"Preview table":       func() { app.printTablePreview() },
 		"Export table to CSV": func() { app.exportToCSV() },
-		"Quit":                func() { os.Exit(1) },
 	}
 	app.CM.SetOptions(options)
 }

@@ -6,14 +6,16 @@ import (
 	"formatore/src/utils"
 )
 
-func (cm *ConsoleMenu) MakeTableBlueprint() (io.TableBlueprintResponse, error) {
+func (cm *ConsoleMenu) MakeTableBlueprint(invalidNames ...string) (io.TableBlueprintResponse, error) {
 	tbRes := io.TableBlueprintResponse{}
+
+	validator := func(s string) bool { return utils.IsNotReserved(s) && !utils.Has(invalidNames, s) }
 	tableNameRes, err := cm.StringResponseViaNewMenu(
-		utils.IsNotReserved,
+		validator,
 		CMHeaders{
 			Title:    "=== Make Table ===",
 			Guidance: "Enter a valid table name.",
-			Controls: "Navigation: (q)uit -- (d)one --",
+			Controls: "Navigation: (q)uit -- (b)ack --",
 			Error:    "Invalid table name.",
 		})
 

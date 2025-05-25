@@ -4,6 +4,7 @@ import (
 	"formatore/src/enums"
 	"formatore/src/structs"
 	"formatore/src/utils"
+	"strings"
 )
 
 type ResponseStatus int
@@ -66,13 +67,16 @@ type StringArrayResponse struct {
 }
 
 func InputIsQuit(s string) bool {
+	s = strings.ToLower(s)
 	return utils.Has(enums.QUIT_TOKENS, s)
 }
 
 func InputIsDone(s string) bool {
+	s = strings.ToLower(s)
 	return utils.Has(enums.DONE_TOKENS, s)
 }
 
 func InputIsBack(s string) bool {
+	s = strings.ToLower(s)
 	return utils.Has(enums.BACK_TOKENS, s)
 }

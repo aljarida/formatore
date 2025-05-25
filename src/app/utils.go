@@ -54,10 +54,10 @@ func (app *App) tableNames() string {
 	var builder strings.Builder
 	for i, n := range names {
 		var fmter string
-		if i == len(names)-1 {
-			fmter = "%s\n"
-		} else {
+		if i == len(names) - 1 {
 			fmter = "%s"
+		} else {
+			fmter = "%s\n"
 		}
 		builder.WriteString(fmt.Sprintf(fmter, n))
 	}

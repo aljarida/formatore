@@ -47,8 +47,17 @@ func CreateTable(db *sql.DB, tb structs.TableBlueprint) error {
 		return err
 	}
 
+	tableNames, err := TableNames(db)
+	if err != nil {
+		return err
+	}
+
+	if utils.Has(tableNames, tb.Name) {
+		return fmt.Errorf("Can not create an additional table of name '%s'.", tb.Name)
+	}
+
 	query := makeCreateQuery(tb)
-	_, err := db.Exec(query)
+	_, err = db.Exec(query)
 	return err
 }
 

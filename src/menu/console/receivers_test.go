@@ -18,18 +18,18 @@ func TestGetQuestion(t *testing.T) {
 	}
 	cm := makeConsoleMenuWithIO(mockIO)
 
-	res, err := cm.getQuestion()
+	res, err := cm.getQuestion(0)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, res.Content.Name, expectedN, "Should be equal.")
 	assert.Equal(t, res.Content.Type, expectedT, "Should be equal.")
 
 	cm.io.I = &io.MockInput{Data: []string{enums.QUIT_TOKENS[0], enums.DONE_TOKENS[0]}}
 
-	res, err = cm.getQuestion()
+	res, err = cm.getQuestion(0)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputQuit, res.Status, "Should be equal.")
 
-	res, err = cm.getQuestion()
+	res, err = cm.getQuestion(0)
 	assert.NoError(t, err, "Should not error.")
 	assert.Equal(t, io.InputDone, res.Status, "Should be equal.")
 }

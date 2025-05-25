@@ -24,7 +24,6 @@ func (cm *ConsoleMenu) loopUntilValidResponse(validator func(string) bool) (io.S
 			return res, err
 		}
 
-		// TODO: This 3-case InputIs switch can and should be refactored.
 		if io.InputIsDone(input) { // In the event this (looping) function is called in a loop.
 			res.Status = io.InputDone
 			return res, nil
@@ -35,15 +34,13 @@ func (cm *ConsoleMenu) loopUntilValidResponse(validator func(string) bool) (io.S
 			res.Status = io.InputBack
 			return res, nil
 		} else if validInput := validator(input); !validInput {
-
-			cm.SetErrorState(true)
-			cm.Render()
-
 			counter += 1
 			if counter > errorThreshold {
 				return res, errors.ErrTooManyInvalidResponses
 			}
 
+			cm.SetErrorState(true)
+			cm.Render()
 		} else {
 			cm.SetErrorState(false)
 			res.Status = io.InputOkay

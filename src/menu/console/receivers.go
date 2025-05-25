@@ -5,6 +5,7 @@ import (
 	"formatore/src/io"
 	"formatore/src/structs"
 	"formatore/src/utils"
+	"strings"
 )
 
 func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayResponse, error) {
@@ -43,16 +44,24 @@ func (cm *ConsoleMenu) GetValues(cbs []structs.ColumnBlueprint) (io.StringArrayR
 	return strArrRes, nil
 }
 
-func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
+func (cm *ConsoleMenu) getQuestion(n int) (io.ColumnBlueprintResponse, error) {
 	cbRes := io.ColumnBlueprintResponse{}
+	
+	textControls := "Navigation: (q)uit --"
+	if n > 1 {
+		textControls += " (d)one --"
+	}
 
 	qTextResponse, err := cm.StringResponseViaNewMenu(
-		utils.IsNotReserved,
+		func(s string) bool {
+			s = strings.ToUpper(s)
+			return utils.IsNotReserved(s)
+		},
 		CMHeaders{
-			Title:    "=== Column Name ===",
-			Guidance: "Please enter a column name that serve as a question.",
+			Title:    fmt.Sprintf("=== Column %d Name ===", n),
+			Guidance: "Please enter a column name that serves as a question.",
 			Error:    "Invalid column name.",
-			Controls: "Navigation: (q)uit --",
+			Controls: textControls,
 		})
 
 	if qTextResponse.Done() || qTextResponse.Quit() {
@@ -65,18 +74,20 @@ func (cm *ConsoleMenu) getQuestion() (io.ColumnBlueprintResponse, error) {
 	qTypeResponse, err := cm.StringResponseViaNewMenu(
 		utils.IsValidType,
 		CMHeaders{
-			Title:    "=== Type ===",
+			Title:    fmt.Sprintf("=== Column %d Type ===", n),
 			Guidance: "Please enter a type for the question (TEXT, INTEGER, REAL)",
 			Error:    "Invalid type.",
 			Controls: "Navigation: (q)uit --",
 		})
 
-	if qTypeResponse.Done() || qTextResponse.Quit() {
+	if qTypeResponse.Done() || qTypeResponse.Quit() {
 		cbRes.Status = qTypeResponse.Status
 		return cbRes, nil
 	} else if err != nil {
 		return cbRes, err
 	}
+
+	qTypeResponse.Content = strings.ToUpper(qTypeResponse.Content)
 
 	cbRes.Content = structs.ColumnBlueprint{
 		Name: qTextResponse.Content,
@@ -91,8 +102,9 @@ func (cm *ConsoleMenu) GetQuestions() (io.ColumnBlueprintsResponse, error) {
 	cbsRes := io.ColumnBlueprintsResponse{}
 
 	questions := []structs.ColumnBlueprint{}
+	n := 1
 	for {
-		questionRes, err := cm.getQuestion()
+		questionRes, err := cm.getQuestion(n)
 		if questionRes.Done() && len(questions) > 0 {
 			cbsRes.Status = io.InputOkay
 			cbsRes.Content = questions
@@ -107,6 +119,7 @@ func (cm *ConsoleMenu) GetQuestions() (io.ColumnBlueprintsResponse, error) {
 			return io.ColumnBlueprintsResponse{}, err
 		} else {
 			questions = append(questions, questionRes.Content)
+			n += 1
 			continue
 		}
 	}
