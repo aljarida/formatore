@@ -13,12 +13,13 @@ import (
 )
 
 func createSiblingFolder(folderName string) (string, error) {
-	cwd, err := os.Getwd()
+	exePath, err := os.Executable()
 	if err != nil {
 		return "", fmt.Errorf("Could not get program's executable path: %w.", err)
 	}
 
-	siblingFolder := filepath.Join(cwd, folderName)
+	exeDir := filepath.Dir(exePath)
+	siblingFolder := filepath.Join(exeDir, folderName)
 	if err := os.MkdirAll(siblingFolder, 0o755); err != nil {
 		return "", fmt.Errorf("Could not create the '%s' directory: %w.", folderName, err)
 	}
