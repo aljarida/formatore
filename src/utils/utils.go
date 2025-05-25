@@ -10,9 +10,7 @@ import (
 	"unicode"
 )
 
-// Source: https://sqlite.org/datatype3.html
 var validSQLite3Types = map[string]bool{
-	enums.Blob:    true,
 	enums.Integer: true,
 	enums.Real:    true,
 	enums.Text:    true,

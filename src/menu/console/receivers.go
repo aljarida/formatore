@@ -72,7 +72,10 @@ func (cm *ConsoleMenu) getQuestion(n int) (io.ColumnBlueprintResponse, error) {
 	}
 
 	qTypeResponse, err := cm.StringResponseViaNewMenu(
-		utils.IsValidType,
+		func(s string) bool {
+			s = strings.ToUpper(s)
+			return utils.IsValidType(s)
+		},
 		CMHeaders{
 			Title:    fmt.Sprintf("=== Column %d Type ===", n),
 			Guidance: "Please enter a type for the question (TEXT, INTEGER, REAL)",
