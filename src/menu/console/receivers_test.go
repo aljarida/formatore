@@ -10,7 +10,7 @@ import (
 
 // TODO: Test MockOutput results.
 func TestGetQuestion(t *testing.T) {
-	expectedN := "What?"
+	expectedN := "What"
 	expectedT := enums.Text
 	mockIO := &io.IO{
 		I: &io.MockInput{Data: []string{"NULL", "PRAGMA", "JOIN", expectedN, "SELECT", expectedT}},

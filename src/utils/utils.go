@@ -33,17 +33,24 @@ func IsValidType(str string) bool {
 	return ok
 }
 
+func AlphanumericAndUnder(str string) bool {
+	for i, r := range str {
+		validNum := unicode.IsNumber(r) && i != 0
+		validLetter := unicode.IsLetter(r) || r == '_'
+		if !validNum && !validLetter {
+			return false
+		}
+	}
+	return true
+}
+
 // Determine if a string is a valid identifier.
 func IsValidIdentifier(str string) error {
 	if IsReserved(str) {
 		return fmt.Errorf("Must not use reserved keywords; found '%s'.", str)
 	}
-	for i, r := range str {
-		validNum := unicode.IsNumber(r) && i != 0
-		validLetter := unicode.IsLetter(r) || r == '_'
-		if !validNum && !validLetter {
-			return fmt.Errorf("Must use alphanumeric characters or '_'; found '%c'.", r)
-		}
+	if !AlphanumericAndUnder(str) {	
+		return fmt.Errorf("Must use alphanumeric characters or '_' only but received '%s'.", str)
 	}
 	return nil
 }

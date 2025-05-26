@@ -55,12 +55,12 @@ func (cm *ConsoleMenu) getQuestion(n int) (io.ColumnBlueprintResponse, error) {
 	qTextResponse, err := cm.StringResponseViaNewMenu(
 		func(s string) bool {
 			s = strings.ToUpper(s)
-			return utils.IsNotReserved(s)
+			return utils.IsNotReserved(s) && utils.AlphanumericAndUnder(s)
 		},
 		CMHeaders{
 			Title:    fmt.Sprintf("=== Column %d Name ===", n),
 			Guidance: "Please enter a column name that serves as a question.",
-			Error:    "Invalid column name.",
+			Error:    "Invalid column name. Must use alphanumeric characters or '_'.",
 			Controls: textControls,
 		})
 
