@@ -4,7 +4,7 @@
 # Features
 - Create tables of arbitrary size with data types ranging between `TEXT`, `INTEGER`, and `REAL`.
 - Update, delete, and preview tables all from the command-line.
-- Export tables directly to CSV in merely three user inputs: `e`, `tablename`, `outputfilename`.
+- Export tables directly to CSV in merely three user inputs: 1) `e`; 2) `yourtablename`; 3) `youroutputfilename`.
 
 # Installation
 - Download the source code.
